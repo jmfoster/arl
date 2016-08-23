@@ -1,0 +1,98 @@
+Bugs:
+x denom in similarity normalization includes all computed similarities (including extra ones not in exemplars)
+    x fixed in learn() function
+    x could possibly be fixed by removing commutative similarity storage in update_h()
+
+TODO:
+x verify optimal player
+x finish main() setup with switch for prepopulation
+x switch to greedy at test.
+x YYY schema not aquiring values -- test simSymSchema.
+    x model never experiences YYY (b/c it's never an afterstate to model "me") ??
+    x change to YYB
+x change learning rate to 1
+x fix points calculation
+fix value comparison calculation for evaluation
+get featural and symmetry models to learn
+initialize recruited exemplar to V_tilde
+    or, initialize exrmplar's value at the target of the TD: V3+r1-sqrt(gamma)*r2
+    ** check that mergeExemplars() is working as intended
+verify how V_tilde updates for each player's last move of the game
+make similarity exponentially-decaying exp{-theta*mismatches(as1, as2)}
+    theta of 1, 2, or 3 should work. could bump to infinity as a check (but slow)
+
+Questions:
+x where to recruit new exemplar?  when entering an afterstate?
+x initialize p1 and p2 with same domain object?
+x need to merge exemplars between players?
+x optimal player chooses randomly for first move (b/c values are all 0 -- which they would be, against an optimal opponent)
+    x that's okay. just trying to evaluate learning progress of agent.
+for comparing stored values (v) to optimal player's, which exemplars should be compared? and how to normalize?
+    take avg over whole state-space
+x points for winner? 
+    x no.  framework breaks when both players are non-optimal.  
+    x number of OWN moves that are not losing.
+x if an state is not recruited, should the model still learn from that move?
+    x I think so. 
+    x And include it in the normalization?  I think so.
+ok to link p1.v and p2.v, and p1.h and p2.h for efficiency/complexity reasons?  
+    ok for self-play, but not for other training?
+
+Notes:
+ideally, the models learn the task. so do enough blocks so focal model get to point of near perfect performance.
+measure performance: for every for-state, ask whether:
+    loss frequency
+    values measure: is max V_tilde of model same as for optimal player?
+   
+    
+*** Efficiency:
+create similarity matrix upfront.  store in text file, and then don't have to compute it again.
+    separate similarity matrix for features model. and symmetric model. and sym+schemas model.
+    could store as full matrices
+    makes computing vector of v_tilde faster.  
+    just need a unique mapping from state id to index in similarity matrix
+
+Running:
+10:1 train:test ratio
+
+
+New Questions:
+what to initialize schema value as? value of the exemplar it was induced from? need to include est (external) value of current state?
+    value of exemplar it came from? yes.
+    Vtilde (current state)?
+    need to do some real analyses of these things
+cache induced schemas until end of game? or extend both players' representations (v vectors) immediately?
+    yes, cache
+allow repeat steates/episodes into exemplars?
+    yes, allow repeated states & schemas into exemplars     
+        it's ok b/c initialized at Vtilde
+statistics to track: 
+    # of schemas
+    value of schemas
+    schema generation (1st, 2nd, 3rd, etc)
+    schema size
+    might have to turn down induction paramater pretty far to get good performance
+        matt thinks ~dozen schemas
+    mean absolute weight of schemas vs. mean absolute weight of state exemplars
+multiply delta_TD by sim(as, j)?
+    implements dTD / dsim
+    whenever schema induced that has very small size (==1), save that info/print it to see what's going on
+--
+need to not normalize by schema size??
+mysteries
+    why no schemas of size=4?
+    why is all 3 schemas (all unkonwns) so highly valued?
+    many many repeat schemas recruited into Exemplars
+    i swapped V1_tilde and V1_tilde_prime
+
+change:
+    cache recruitment of exemplars
+    in recruitment: initialize exemrplar value to: (n*vj + v_tilde) / (n+1)
+    apply cached updates before applying cached recruitment (of schemas and states)
+
+++++++++++++++++++++++++++++++
+13.11.08
+change sim function from matt to better handle 3's - ties not handled well?
+
+prioritze schemas (more general) over exemplars when u's are tied
+
