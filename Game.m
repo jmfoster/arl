@@ -209,9 +209,9 @@ classdef Game < handle
                     schemaU = sum(agentsA{m}.u(agentsA{m}.E(agentsA{m}.E>5477)));
                     exemplarV = sum(abs(agentsA{m}.v(agentsA{m}.E(agentsA{m}.E<=5477))));
                     schemaV = sum(abs(agentsA{m}.v(agentsA{m}.E(agentsA{m}.E>5477))));
-                    exemplarAvgU = exemplarU/numExemplars(m,i);
+                    exemplarAvgU = exemplarU/(numExemplars(m,i)-nSchemas(m,i));
                     schemaAvgU = schemaU/nSchemas(m,i);
-                    exemplarAvgV = exemplarV/numExemplars(m,i);
+                    exemplarAvgV = exemplarV/(numExemplars(m,i)-nSchemas(m,i));
                     schemaAvgV = schemaV/nSchemas(m,i);
                     exemplarTracking = [exemplarU schemaU exemplarV schemaV exemplarAvgU schemaAvgU exemplarAvgV schemaAvgV]';
                     agentsA{m}.exemplarTracking = [agentsA{m}.exemplarTracking exemplarTracking];
