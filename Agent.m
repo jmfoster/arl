@@ -70,6 +70,7 @@ classdef Agent < handle
         stateVisits; %track how many times each state has been visited
         exemplarGeneration = [];
         nSchemas = [];
+        numExemplars = [];
         nRecruitedSchemas = []; %number of schemas recruited into exemplar, regardless of whether they had been induced already
         nInducedSchemas = [];   %number of 'new' schemas induced that didn't exist before
         nRecruitedStates = [];
@@ -82,6 +83,12 @@ classdef Agent < handle
         nSchemasByTurnSizes = {};  %array of schema sizes, without turn boundaries (use nSchemasByTurn to determine turn boundaries)
         turn = 0;
         sumUupdates = [];
+        exemplarTracking = zeros(8, 0)
+        exemplarUbyBlock = [];
+        schemaUbyBlock = [];
+        exemplarVbyBlock = [];
+        schemaVbyBlock = [];
+        
     end
     
     methods
@@ -99,6 +106,7 @@ classdef Agent < handle
             ag.z = zeros(ag.nValues, 1);
             ag.stateVisits = zeros(ag.nValues, 1);
             ag.exemplarGeneration = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
+    
 
             %the tradeoff between those thresholds makes sense.  if you want induction rate to be roughly 
             %invariant to the MAC threshold, you could try setting schemaIductionThreshold to z std deviations,
@@ -130,7 +138,7 @@ classdef Agent < handle
             end
         end
         
-        %recruit new exemplars if recruitment==1, else don't recruit (e.g.,
+        %possibly recruit new exemplars if recruitment==1, else don't recruit (e.g.,
         %during testing
         function [as1_soft as1_star r1 V1_tilde_soft V1_tilde_star] = selectAfterstate(ag, fs, recruitment)
             ag.turn = ag.turn+1;

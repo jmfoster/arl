@@ -187,6 +187,7 @@ classdef Game < handle
             diffs = zeros(length(agentsA), nBlocks); %model types x blocks
             points = zeros(length(agentsA), nBlocks); %model types x blocks
             nSchemas = zeros(length(agentsA), nBlocks); %model types x blocks
+            numExemplars = zeros(length(agentsA), nBlocks); %model types x blocks
             for i=1:nBlocks
                 disp(strcat('Block: ', int2str(i), '/', int2str(nBlocks)));
                 %train
@@ -198,8 +199,24 @@ classdef Game < handle
                 for m = 1:length(agentsA)   %for each model
                     [props(m,1,i) props(m,2,i) props(m,3,i) points(m, i)] = g.playOptimalPlayer(agentsA{m}, testingRounds);
                     nSchemas(m,i) = length(agentsA{m}.E(agentsA{m}.E>5477));
+                    numExemplars(m,i) = length(agentsA{m}.E);
                     agentsA{m}.nSchemas = [agentsA{m}.nSchemas nSchemas(m,i)];
                     agentsA{m}.points = points(m,:);
+                    agentsA{m}.numExemplars = [agentsA{m}.numExemplars numExemplars(m,i)];
+                    
+                    %exemplarTracking 
+                    exemplarU = sum(agentsA{m}.u(agentsA{m}.E<=5477));
+                    schemaU = sum(agentsA{m}.u(agentsA{m}.E>5477));
+                    exemplarV = sum(abs(agentsA{m}.v(agentsA{m}.E<=5477)));
+                    schemaV = sum(abs(agentsA{m}.v(agentsA{m}.E>5477)));
+                    exemplarAvgU = exemplarU/numExemplars(m,i);
+                    schemaAvgU = schemaU/nSchemas(m,i);
+                    exemplarAvgV = exemplarV/numExemplars(m,i);
+                    schemaAvgV = schemaV/nSchemas(m,i);
+                    exemplarTracking = [exemplarU schemaU exemplarV schemaV exemplarAvgU schemaAvgU exemplarAvgV schemaAvgV]';
+                    agentsA{m}.exemplarTracking = [agentsA{m}.exemplarTracking exemplarTracking];
+                    
+                    
                     if(g.diagnostics>0)
                         ag = agentsA{m};
                         gen = zeros(length(ag.E),1);
@@ -214,7 +231,11 @@ classdef Game < handle
                 %props(:,:,i)
                 latestPoints = points(:,max(1,i-9):i) %output points
                 latestNSchemas = nSchemas(:,max(1,i-9):i) %output nSchemas
-         
+                latestNumExemplars = numExemplars(:,max(1,i-9):i) %output numExemplars
+                %exemplarTracking labels [{'exemplarU'} {'schemaU'} {'exemplarV'} {'schemaV'} {'exemplarAvgU'} {'schemaAvgU'} {'exemplarAvgV'} {'schemaAvgV'}]']
+                latestExemplarTracking = agentsA{3}.exemplarTracking(:,max(1,i-9):i)   %output exemplarTracking (for the specified agent, in this case 3)
+               
+                
                 
                 if(mod(i,10)==0)
                     %plotpoints
@@ -258,7 +279,7 @@ classdef Game < handle
  
         function time = main(agents, blocks)
             %% main function
-            blocks = 5000;
+            blocks = 100;
             agents = {};
             prepopulate = 0;    %0 for no prepopulation, 1 for prepopulation
             prepopSize = 100;
@@ -268,7 +289,7 @@ classdef Game < handle
             scores = {};
             %agents = {};
             ticID = tic;
-            iterations = 6;
+            iterations = 1;
             %parfor i=1:iterations
             for i=1:iterations
                 disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
@@ -293,11 +314,11 @@ classdef Game < handle
 %                 g9.p0 = p09;
 
                 %create featural players
-%                p1 = Agent(g.d, 1, recruitment, 0);
-%                p2 = Agent(g.d, 1, recruitment, 0);
+                p1 = Agent(g.d, 1, recruitment, 0);
+                p2 = Agent(g.d, 1, recruitment, 0);
                 %create symmetric players
-%                p3 = Agent(g.d, 2, recruitment, 0);
-%                p4 = Agent(g.d, 2, recruitment, 0);
+                p3 = Agent(g.d, 2, recruitment, 0);
+                p4 = Agent(g.d, 2, recruitment, 0);
                 
                % p3b = Agent(g.d, 2, recruitment, 0);
                % p4b = Agent(g.d, 2, recruitment, 0);
@@ -364,8 +385,8 @@ classdef Game < handle
                     agentsA = {p7};
                     agentsB = {p8};
                 end
-                %agentsA = {p1, p3, p7};
-                %agentsB = {p2, p4,ç p8};
+                agentsA = {p1, p3, p7};
+                agentsB = {p2, p4, p8};
              
              
                 agents{i} = agentsA;
@@ -393,11 +414,11 @@ classdef Game < handle
             end
             time = toc(ticID)
             if(yoked==0)
-                save('yoked1000_autosave.mat', 'p7', 'p8');
+                %save('yoked1000_autosave.mat', 'p7', 'p8');
             end
             saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iterations=', int2str(iterations));
             save(saveStr, 'scores', 'agents');
-            Game.analyzeScores(scores, length(agents)/2, blocks);
+            Game.analyzeScores(scores, length(agents{1}), blocks);
         end
         
         function plotPoints3P(p1, p2, p3)
