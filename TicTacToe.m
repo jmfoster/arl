@@ -324,7 +324,7 @@ classdef TicTacToe < handle
         %return unique int id for a grid, by converting 3x3 grid into
         %9-digit number
         function id = id(ttt, grid)
-            if(max(grid(:)<3)) %non-schemas (base 3)
+            if(max(grid(:))<3) %non-schemas (base 3)
                 grid = grid+1;
                 id = ttt.gridIDs(grid(1), grid(2),grid(3),grid(4),grid(5),grid(6),grid(7),grid(8),grid(9));
             else

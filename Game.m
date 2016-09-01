@@ -328,7 +328,8 @@ classdef Game < handle
     end
     
     methods(Static)
-        
+        %git fetch
+        %git reset --hard origin/master
         
  
         function time = main(agents, blocks)
@@ -337,7 +338,7 @@ classdef Game < handle
             agents = {};
             prepopulate = 0;    %0 for no prepopulation, 1 for prepopulation
             prepopSize = 100;
-            recruitment = 4;   %0 for no recruitment, 1 for recruit all, 2 for probablistic recruitment
+            recruitment = 2;   %0 for no recruitment, 1 for recruit all, 2 for probablistic recruitment
             trainingRounds = 10; %numGames is 1 x trainingRounds (but self-play so model sees each game from both sides)
             testingRounds = 1; %numGames is 2 x testingRounds
             scores = {};
@@ -402,8 +403,8 @@ classdef Game < handle
                 %create schema induction players
                 p7 = Agent(g.d, 2, recruitment, 1);
                 p8 = Agent(g.d, 2, recruitment, 1);
-                p7.schemaInductionThreshold = 8;
-                p8.schemaInductionThreshold = 8;
+                p7.schemaInductionThreshold = 7;
+                p8.schemaInductionThreshold = 7;
                 p7.macThreshold = 100;
                 p8.macThreshold = 100;
 %                 p9 = Agent(g3.d, 2, recruitment, 1);
