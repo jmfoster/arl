@@ -16,6 +16,8 @@ classdef TicTacToe < handle
         nStates;
         gm; %gridMatrix
         f; %feature vectors
+        gridIDs;
+        terminalStates;
         
         %stored similarities
         hFeatural;
@@ -58,6 +60,10 @@ classdef TicTacToe < handle
             ttt.gm = gm;
             load('f.mat')
             ttt.f = f;
+            load('gridIDs.mat')
+            ttt.gridIDs = gridIDs;
+            load('terminalStates.mat')
+            ttt.terminalStates = terminalStates;
             
         end
         
@@ -124,9 +130,10 @@ classdef TicTacToe < handle
         end
         
         %return 1 iff no actions left or reward==1
-        function bool = isTerminalState(ttt, s)
+        function bool = isTerminalState(ttt, s) 
+           bool = ttt.terminalStates(s+1); %have to add one because of caching including 0th starting state
                   %no actions left          or     reward==1
-           bool = isempty(ttt.getActions(s))|| ttt.getReward(s)==1;
+           %bool = isempty(ttt.getActions(s))|| ttt.getReward(s)==1;
         end
         
         %returns available actions for state s
@@ -317,26 +324,30 @@ classdef TicTacToe < handle
         %return unique int id for a grid, by converting 3x3 grid into
         %9-digit number
         function id = id(ttt, grid)
-            list = grid(:)';
-            strn = num2str(list);
-            strn = strn(strn ~= ' ');
-%             for i=1:length(list)
-%                 strn = strcat(strn, num2str(list(i)));
-%             end
-            
-            if(max(list) < 3)  %non-schemas (base 3)
-                idRaw = base2dec(strn, 3)+1;
-            elseif(max(list)==3)  %schemas (base 4)
-                idRaw = base2dec(strn, 4)+19684; %prevent overlap b/w base3 and base4 idRaw's
+            if(max(grid(:)<3)) %non-schemas (base 3)
+                grid = grid+1;
+                id = ttt.gridIDs(grid(1), grid(2),grid(3),grid(4),grid(5),grid(6),grid(7),grid(8),grid(9));
+            else
+                list = grid(:)';
+                if(max(list) < 3)  %non-schemas (base 3)
+                    strn = num2str(list);
+                    strn = strn(strn ~= ' ');
+                    idRaw = base2dec(strn, 3)+1;
+                elseif(max(list)==3)  %schemas (base 4)
+                    strn = num2str(list);
+                    strn = strn(strn ~= ' ');           
+                    idRaw = base2dec(strn, 4)+19684; %prevent overlap b/w base3 and base4 idRaw's
+                end
+
+               id = find(ttt.stateIDs==idRaw); %squeeze id into range of 1:5477
+               if(isempty(id))  %id not in stateIDs. needs to be added
+                    %add idRaw to stateIDs
+                    ttt.stateIDs = [ttt.stateIDs idRaw];
+                    id = find(ttt.stateIDs==idRaw);
+                    %error('grid not found in possible states')
+               end
             end
-            
-           id = find(ttt.stateIDs==idRaw); %squeeze id into range of 1:5477
-           if(isempty(id))  %id not in stateIDs. needs to be added
-                %add idRaw to stateIDs
-                ttt.stateIDs = [ttt.stateIDs idRaw];
-                id = find(ttt.stateIDs==idRaw);
-                %error('grid not found in possible states')
-            end
+           
         end
         
         
@@ -367,6 +378,69 @@ classdef TicTacToe < handle
     end
     
     methods(Static)
+        
+        function gridIds = precomputeGridIDs()
+            ttt = TicTacToe();
+            gridIDs = zeros([3 3 3 3 3 3 3 3 3]);
+            
+            valueSet = values(ttt.grids);
+            for i=1:length(valueSet)
+                grid = valueSet{i}; 
+                id = ttt.id(grid);
+                grid = grid+1; %add 1 so we don't index using 0's in the grids
+                %index = grid(1), grid(2),grid(3),grid(4),grid(5),grid(6),grid(7),grid(8),grid(9);
+                gridIDs(grid(1), grid(2),grid(3),grid(4),grid(5),grid(6),grid(7),grid(8),grid(9)) = id;
+                %gridIDs(index) = id;
+                %sprintf('%1d',grid(1:9))
+            end
+            save('gridIDs.mat', 'gridIDs');
+            
+            
+            
+            %verify
+            valueSet = values(ttt.grids);
+            for i=1:length(valueSet)
+                grid = valueSet{i}; 
+                id1 = ttt.id(grid);
+                grid = grid+1;
+                id2 = gridIDs(grid(1), grid(2),grid(3),grid(4),grid(5),grid(6),grid(7),grid(8),grid(9));
+                if(id1~=id2)
+                    grid-1
+                    id1
+                    id2
+                end
+            end
+            
+        end
+        
+       function terminalStates = precomputeTerminalStates()
+            ttt = TicTacToe();
+            terminalStates = false(5478);
+            
+            keySet = keys(ttt.grids);
+            for i=1:length(keySet)
+                s = keySet{i};
+                its = ttt.isTerminalState(s);
+                s = s+1; %have to add one for the 0 state indexing to work
+                terminalStates(s)= its;
+            end
+            save('terminalStates.mat', 'terminalStates');
+            
+            
+            %verify
+            keySet = keys(ttt.grids);
+            for i=1:length(keySet)
+                s = keySet{i};
+                its = ttt.isTerminalState(s);
+                
+                s = s+1; %have to add one for the 0 state indexing to work
+                if(its~=terminalStates(s))
+                    its
+                end
+            end
+       end
+        
+        
 
         function bool = isStartingState(s)
             bool = s==0;
