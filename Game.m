@@ -508,7 +508,7 @@ classdef Game < handle
             plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'r--');
             plot(mean(reshape(agent.exemplarTracking(8,1:blocks),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
+            title(strcat('Exemplar Tracking V Avg. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
 
@@ -519,7 +519,7 @@ classdef Game < handle
             plot(mean(reshape(agent.exemplarTracking(3,1:blocks),10,blocks/10)), 'r--');
             plot(mean(reshape(agent.exemplarTracking(4,1:blocks),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
+            title(strcat('Exemplar Tracking V Sum. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
 
