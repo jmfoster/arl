@@ -8,7 +8,8 @@ classdef TicTacToe < handle
     
     properties
         grids = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-        rewards = containers.Map('KeyType', 'int32', 'ValueType', 'double');
+        %rewards = containers.Map('KeyType', 'int32', 'ValueType', 'double');
+        rewards = NaN(5477,'double'); 
         size = uint8(3); %grids will be size x size square
         %maxID;
         stateIDs;
@@ -94,9 +95,14 @@ classdef TicTacToe < handle
         %return reward for state id (s).  if reward not already stored in rewards map,
         %compute reward by checking for end of game
         function r = getReward(ttt, s)
-            if(ttt.rewards.isKey(s))
-                r = ttt.rewards(s);
+            %if(ttt.rewards.isKey(s))
+            %    r = ttt.rewards(s);
+            if(s==0)    %starting state, special case
+                r = 0;
             else
+                r = ttt.rewards(s);
+            end
+            if(isnan(r))
                 g = ttt.grids(s);
                 r = computeReward_mex(ttt.size, g); %efficient c compiled code
 %                 r = 0;
@@ -113,6 +119,7 @@ classdef TicTacToe < handle
 %                     end
 %                 end
 %                 ttt.rewards(s) = r;
+               ttt.rewards(s) = r;
             end
         end
         

@@ -238,8 +238,8 @@ classdef Game < handle
                 %avg u by size
                 
                 
-                
-                if(mod(i,10)==0)
+
+                if(mod(i,1000)==0)
                     %plotpoints
                     %figure;
                     clf,hold on;
@@ -261,56 +261,56 @@ classdef Game < handle
                     %save(saveStr, 'points', 'agentsA');
                 end
                 
-                
-                if(mod(i,10)==0)
-                    %plot exemplar tracking U Avg
-                    %figure
-                    clf,hold on;
-                    plot(mean(reshape(agentsA{m}.exemplarTracking(5,1:i),10,i/10)), 'r--');
-                    plot(mean(reshape(agentsA{m}.exemplarTracking(6,1:i),10,i/10)), 'b-');
-                    %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
-                    title(strcat('Exemplar Tracking U Avg. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
-                    %title('points');
-                    drawnow;
-                end
-                
-                if(mod(i,10)==0)
-                  
-                    %plot exemplar tracking U Sum
-                    %figure
-                    clf,hold on;
-                    plot(mean(reshape(agentsA{m}.exemplarTracking(1,1:i),10,i/10)), 'r--');
-                    plot(mean(reshape(agentsA{m}.exemplarTracking(2,1:i),10,i/10)), 'b-');
-                    %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
-                    title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
-                    %title('points');
-                    drawnow;
-                end
-                
-                if(mod(i,10)==0)
-                    %plot exemplar tracking V Avg
-                    %figure
-                    clf,hold on;
-                    plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'r--');
-                    plot(mean(reshape(agentsA{m}.exemplarTracking(8,1:i),10,i/10)), 'b-');
-                    %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
-                    title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
-                    %title('points');
-                    drawnow;
-                end
-                
-                if(mod(i,10)==0)  
-                    %plot exemplar tracking V Sum
-                    %figure
-                    clf,hold on;
-                    plot(mean(reshape(agentsA{m}.exemplarTracking(3,1:i),10,i/10)), 'r--');
-                    plot(mean(reshape(agentsA{m}.exemplarTracking(4,1:i),10,i/10)), 'b-');
-                    %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
-                    title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
-                    %title('points');
-                    drawnow;
-                end
-                
+%                 
+%                 if(mod(i,10)==0)
+%                     %plot exemplar tracking U Avg
+%                     %figure
+%                     clf,hold on;
+%                     plot(mean(reshape(agentsA{m}.exemplarTracking(5,1:i),10,i/10)), 'r--');
+%                     plot(mean(reshape(agentsA{m}.exemplarTracking(6,1:i),10,i/10)), 'b-');
+%                     %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
+%                     title(strcat('Exemplar Tracking U Avg. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
+%                     %title('points');
+%                     drawnow;
+%                 end
+%                 
+%                 if(mod(i,10)==0)
+%                   
+%                     %plot exemplar tracking U Sum
+%                     %figure
+%                     clf,hold on;
+%                     plot(mean(reshape(agentsA{m}.exemplarTracking(1,1:i),10,i/10)), 'r--');
+%                     plot(mean(reshape(agentsA{m}.exemplarTracking(2,1:i),10,i/10)), 'b-');
+%                     %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
+%                     title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
+%                     %title('points');
+%                     drawnow;
+%                 end
+%                 
+%                 if(mod(i,10)==0)
+%                     %plot exemplar tracking V Avg
+%                     %figure
+%                     clf,hold on;
+%                     plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'r--');
+%                     plot(mean(reshape(agentsA{m}.exemplarTracking(8,1:i),10,i/10)), 'b-');
+%                     %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
+%                     title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
+%                     %title('points');
+%                     drawnow;
+%                 end
+%                 
+%                 if(mod(i,10)==0)  
+%                     %plot exemplar tracking V Sum
+%                     %figure
+%                     clf,hold on;
+%                     plot(mean(reshape(agentsA{m}.exemplarTracking(3,1:i),10,i/10)), 'r--');
+%                     plot(mean(reshape(agentsA{m}.exemplarTracking(4,1:i),10,i/10)), 'b-');
+%                     %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
+%                     title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
+%                     %title('points');
+%                     drawnow;
+%                 end
+%                 
                  
                 %compare stored values to optimal player's
 %                 for m = 1:length(agentsA)   %for each model
