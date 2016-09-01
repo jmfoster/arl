@@ -473,6 +473,58 @@ classdef Game < handle
             saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iterations=', int2str(iterations));
             save(saveStr, 'scores', 'agents');
             Game.analyzeScores(scores, length(agents{1}), blocks);
+            Game.plotExemplarTracking(agentsA{3}, blocks);
+        end
+        
+        
+        function plotExemplarTracking(agent, blocks)
+            %plot exemplar tracking U Avg
+            figure
+            clf,hold on;
+            plot(mean(reshape(agent.exemplarTracking(5,1:blocks),10,blocks/10)), 'r--');
+            plot(mean(reshape(agent.exemplarTracking(6,1:blocks),10,blocks/10)), 'b-');
+            %plot(mean(reshape(agent.exemplarTracking(7,1:i),10,blocks/10)), 'b-');
+            title(strcat('Exemplar Tracking U Avg. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
+            %title('points');
+            drawnow;
+
+
+
+
+            %plot exemplar tracking U Sum
+            figure
+            clf,hold on;
+            plot(mean(reshape(agent.exemplarTracking(1,1:blocks),10,blocks/10)), 'r--');
+            plot(mean(reshape(agent.exemplarTracking(2,1:blocks),10,blocks/10)), 'b-');
+            %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
+            title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
+            %title('points');
+            drawnow;
+
+
+            %plot exemplar tracking V Avg
+            figure
+            clf,hold on;
+            plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'r--');
+            plot(mean(reshape(agent.exemplarTracking(8,1:blocks),10,blocks/10)), 'b-');
+            %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
+            title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
+            %title('points');
+            drawnow;
+
+
+            %plot exemplar tracking V Sum
+            figure
+            clf,hold on;
+            plot(mean(reshape(agent.exemplarTracking(3,1:blocks),10,blocks/10)), 'r--');
+            plot(mean(reshape(agent.exemplarTracking(4,1:blocks),10,blocks/10)), 'b-');
+            %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
+            title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
+            %title('points');
+            drawnow;
+
+
+            
         end
         
         function plotPoints3P(p1, p2, p3)
@@ -741,11 +793,11 @@ classdef Game < handle
                 disp(strcat('Block: ', int2str(i), '/', int2str(nBlocks)));
                 %train
                 for m = 1:length(agentsA) %for each model
-                    g.train(agentsA{m}, agentsB{m}, trainingRounds);
+                    g.train(agent, agentsB{m}, trainingRounds);
                 end
                 %test
                 for m = 1:length(agentsA)   %for each model
-                   [props(m,1,i) props(m,2,i) props(m,3,i) points(m, i)] = g.playOptimalPlayer(agentsA{m}, testingRounds);
+                   [props(m,1,i) props(m,2,i) props(m,3,i) points(m, i)] = g.playOptimalPlayer(agent, testingRounds);
 %                     props(m,1,:) = [props(m,1,:) propWins];
 %                     props(m,2,:) = [props(m,2,:) propLosses];
 %                     props(m,3,:) = [props(m,3,:) propDraws];
