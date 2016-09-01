@@ -33,6 +33,8 @@ classdef Agent < handle
         gamma = 1; %for temporal discounting
         alpha_v = .1; %learning rate for v
         alpha_u = .1; %learning rate for u (w)
+        annealLearningRates = 0; %0 for no annealing
+                                 %1 for annealing
         simType; %set by parameter passed to constructor. 
                  %1 for featural, 
                  %2 for symmetric (relational) similarity
@@ -49,6 +51,7 @@ classdef Agent < handle
                          %1 recruit every exemplar
                          %2 recruit probabilistically p(recruitment) = 1/#exemplars
                          %3 recruit with constant probability (1/2)
+                         %4 recruit with probability 1/(#exemplars)^2
         nExemplars = 0;  %max number of exemplars model will use
                           %0 means no limit
         normalizeActivation = 0; %0 don't normalize exemplar similarity over the state space
@@ -185,7 +188,12 @@ classdef Agent < handle
                     if(rand<1/2)
                         ag.cacheExemplar(as1_soft, V1_tilde_soft); 
                     end
-                end  
+                elseif(ag.recruitType==4)
+                    p = 1/(sum(ag.E<=5477)^2); %probability of recruitment is 1/(#stateExemplars)^2
+                    if(rand<p)
+                        ag.cacheExemplar(as1_soft, V1_tilde_soft);
+                    end
+                end
             end
         end
         
@@ -788,14 +796,18 @@ classdef Agent < handle
                 length(updates_v)
             end  
             ag.v = ag.v + updates_v;
-            ag.alpha_v = min(1/sqrt(length(ag.nSchemas)), .1);
+            if(ag.annealLearningRates==1)
+                ag.alpha_v = min(1/sqrt(length(ag.nSchemas)), .1);
+            end
 
         end
         
         function applyCachedUpdatesU(ag, updates_u)
            ag.u = ag.u + updates_u; 
            ag.sumUupdates = [ag.sumUupdates sum(updates_u)];
-           ag.alpha_u = min(1/sqrt(length(ag.nSchemas)), .1);
+           if(ag.annealLearningRates==1)
+            ag.alpha_u = min(1/sqrt(length(ag.nSchemas)), .1);
+           end
         end
         
         function reset_u_cache(ag)
