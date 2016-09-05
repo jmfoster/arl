@@ -3,14 +3,20 @@ classdef Game < handle
     %   Controls game by managing interaction between player1 and player2
     
     properties
-       d = TicTacToe; %domain
+       d; %domain
        p0; %optimal player 
        
        %diagnostics
        diagnostics = 0;
+       
     end
     
     methods
+        
+        function g = Game()
+            g.d = TicTacToe();
+            g.p0 = OptimalAgent(g.d);
+        end
         
         function train(g, p1, p2, nGames)
             players = {p1 p2};
@@ -180,9 +186,160 @@ classdef Game < handle
             propDraws = double(draws) / double(nGames);
             propLosses = double(losses) / double(nGames);
         end
+
+    end
+    
+    methods(Static)
+        %git fetch
+        %git reset --hard origin/master
+        
+ 
+        function [agents, scores] = main(blocks)
+            %% main function
+            %blocks = 100;
+            agents = {};
+            prepopulate = 0;    %0 for no prepopulation, 1 for prepopulation
+            prepopSize = 100;
+            recruitment = 2;   %0 for no recruitment, 1 for recruit all, 2 for probablistic recruitment
+            trainingRounds = 10; %numGames is 1 x trainingRounds (but self-play so model sees each game from both sides)
+            testingRounds = 1; %numGames is 2 x testingRounds
+            scores = {};
+            ticID = tic;
+            iterations = 30;
+            parfor i=1:iterations
+            %for i=1:iterations
+                disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
+                %g = Game;
+                %p0 = OptimalAgent(g.d);
+                %g.p0 = p0;
+                %create separate Game and OptimalAgents (and Domains) for each set of models
+                g1 = Game();
+                g3 = Game();
+                g5 = Game();
+                g7 = Game();
+                g9 = Game();
+             
+                %create featural players
+                p1 = Agent(g1.d, 1, recruitment, 0, 0);
+                p2 = Agent(g1.d, 1, recruitment, 0, 0);
+                %create symmetric players
+                p3 = Agent(g3.d, 2, recruitment, 0, 0);
+                p4 = Agent(g3.d, 2, recruitment, 0, 0);
+                %create schema induction players (no u learning)
+                p7 = Agent(g7.d, 2, recruitment, 1, 0);
+                p8 = Agent(g7.d, 2, recruitment, 1, 0);
+                p7.schemaInductionThreshold = 7;
+                p8.schemaInductionThreshold = 7;
+                %create schema indution players (with u learning)
+                p9 = Agent(g9.d, 2, recruitment, 1, 1);
+                p10 = Agent(g9.d, 2, recruitment, 1, 1);
+                p9.schemaInductionThreshold = 7;
+                p10.schemaInductionThreshold = 7;
+                agentsA = {p1, p3, p7, p9};
+                agentsB = {p2, p4, p8, p10};
+                games = {g1, g3, g7, g9};
+                
+               % p3b = Agent(g.d, 2, recruitment, 0);
+               % p4b = Agent(g.d, 2, recruitment, 0);
+    %                 %p3b.alpha_u=0;
+    %                 %p4b.alpha_u=0;
+    %                 %create endowed relational mode
+    %                 schema1 = [1 1 1; 3 3 3; 3 3 3];
+    %                 schema2 = [1 3 3; 3 1 3; 3 3 1];
+    %                 schema3 = [2 2 0; 3 3 3; 3 3 3];
+    %                 schema4 = [2 3 3; 3 2 3; 3 3 0];
+    %                 %schemas = [schema1 schema2 schema3 schema4];
+    %                 s1 = p3b.d.id(schema1);
+    %                 s2 = p3b.d.id(schema2);
+    %                 s3 = p3b.d.id(schema3);
+    %                 s4 = p3b.d.id(schema4);
+    %                 s1 = p4b.d.id(schema1);
+    %                 s2 = p4b.d.id(schema2);
+    %                 s3 = p4b.d.id(schema3);
+    %                 s4 = p4b.d.id(schema4);
+    %                 schemas = [s1 s2 s3 s4];
+    %                 p3b.applyCachedSchemas(schemas, zeros(1,length(schemas)),schemas,zeros(1,length(schemas)));
+    %                 p4b.applyCachedSchemas(schemas, zeros(1,length(schemas)),schemas,zeros(1,length(schemas)));
+    %                 
+                %create endowed schema players
+%                p5 = Agent(g.d, 3, recruitment, 0);
+%                p6 = Agent(g.d, 3, recruitment, 0);
+               
+                
+                
+                
+%                 p9 = Agent(g3.d, 2, recruitment, 1);
+%                 p10 = Agent(g3.d, 2, recruitment, 1);
+%                 p9.schemaInductionThreshold = 6;
+%                 p10.schemaInductionThreshold = 6;
+%                 p9.macThreshold = 100;
+%                 p10.macThreshold = 100;
+%                 p11 = Agent(g5.d, 2, recruitment, 1);
+%                 p12 = Agent(g5.d, 2, recruitment, 1);
+%                 p11.schemaInductionThreshold = 6;
+%                 p12.schemaInductionThreshold = 6;
+%                 p11.macThreshold = 10000000;
+%                 p12.macThreshold = 10000000;
+                %yoked induction players
+                yoked = -1;
+                if(yoked==1)
+                    load('yoked1000.mat');
+                    p9 = Agent(g.d, 2, recruitment, 1);
+                    p10 = Agent(g.d, 2, recruitment, 1);
+                    p9.schemaInductionThreshold = -1;
+                    p10.schemaInductionThreshold = -1;
+                    %split guided model's schemas and schemaSizes vectors into even/odd vectors
+                    nSchemasByTurn = p7.nSchemasByTurn;
+                    nSchemasByTurnSizes = p7.nSchemasByTurnSizes;
+                    p9.nSchemasYoked = nSchemasByTurn(1:2:end); %odd elements
+                    p10.nSchemasYoked = nSchemasByTurn(2:2:end); %even elements
+                    p9.nSchemasYokedSizes = nSchemasByTurnSizes(1:2:end); %odd elements
+                    p10.nSchemasYokedSizes = nSchemasByTurnSizes(2:2:end); %even elements
+                    agentsA = {p9};
+                    agentsB = {p10};
+                elseif(yoked==0)
+                    agentsA = {p7};
+                    agentsB = {p8};
+                end
+ 
+             
+             
+                agents{i} = agentsA;
+                for m=1:length(agentsA)
+                    agentsA{m}.blocks = blocks;
+                    agentsB{m}.blocks = blocks;
+                end
+                %prepopulate if specified
+                if(prepopulate==1)
+                    sample = g.p0.sampleExemplars(prepopSize);
+                    for m=1:length(agentsA)
+                        pA = agentsA{m};
+                        pB = agentsB{m};
+                        pA.prepopulateExemplars(sample);
+                        pB.prepopulateExemplars(sample);
+                    end
+                end
+                %train and play models against optimal player
+                [props diffs points nSchemas] = Game.evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, blocks, i);
+                scores{i} = {props diffs points};
+                for m=1:length(agentsA)
+                    agentsA{m}.scores = scores{i};
+                    agentsB{m}.blocks = scores{i};
+                end
+            end
+            time = toc(ticID)
+            %if(yoked==0)
+                %save('yoked1000_autosave.mat', 'p7', 'p8');
+            %end
+            saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iterations=', int2str(iterations));
+            save(saveStr, 'scores', 'agents', '-v7.3');
+            %Game.analyzeScores(scores, length(agents{1}), blocks);
+            %Game.plotExemplarTracking(agentsA{3}, blocks);
+        end
         
         
-        function [props diffs points nSchemas] = evaluate(g, agentsA, agentsB, trainingRounds, testingRounds, nBlocks, iteration)
+        
+        function [props diffs points nSchemas] = evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, nBlocks, iteration)
             props = zeros(length(agentsA), 3, nBlocks);  %model types x wins/losses/draws x blocks
             diffs = zeros(length(agentsA), nBlocks); %model types x blocks
             points = zeros(length(agentsA), nBlocks); %model types x blocks
@@ -192,12 +349,12 @@ classdef Game < handle
                 disp(strcat('Block: ', int2str(i), '/', int2str(nBlocks)));
                 %train
                 for m = 1:length(agentsA) %for each model
-                    g.train(agentsA{m}, agentsB{m}, trainingRounds);
+                    games{m}.train(agentsA{m}, agentsB{m}, trainingRounds);
                 end
                 
                 %test
                 for m = 1:length(agentsA)   %for each model
-                    [props(m,1,i) props(m,2,i) props(m,3,i) points(m, i)] = g.playOptimalPlayer(agentsA{m}, testingRounds);
+                    [props(m,1,i) props(m,2,i) props(m,3,i) points(m, i)] = games{m}.playOptimalPlayer(agentsA{m}, testingRounds);
                     nSchemas(m,i) = length(agentsA{m}.E(agentsA{m}.E>5477));
                     numExemplars(m,i) = length(agentsA{m}.E);
                     agentsA{m}.nSchemas = [agentsA{m}.nSchemas nSchemas(m,i)];
@@ -217,7 +374,7 @@ classdef Game < handle
                     agentsA{m}.exemplarTracking = [agentsA{m}.exemplarTracking exemplarTracking];
                     
                     
-                    if(g.diagnostics>0)
+                    if(games{m}.diagnostics>0)
                         ag = agentsA{m};
                         gen = zeros(length(ag.E),1);
                         for e = 1:length(ag.E)
@@ -260,223 +417,8 @@ classdef Game < handle
                     %saveStr = strcat('autosave_iter=', num2str(iteration), '_blocks=', int2str(i), '_nExemplars=', num2str(agentsA{1}.nExemplars), '_SchemaThreshold=', num2str(agentsA{1}.schemaInductionThreshold), '_normalizeActivation=',num2str(agentsA{1}.normalizeActivation), '_LearningRates=', num2str(agentsA{1}.alpha_v), '_', num2str(agentsA{1}.alpha_u),'.mat');
                     %save(saveStr, 'points', 'agentsA');
                 end
-                
-%                 
-%                 if(mod(i,10)==0)
-%                     %plot exemplar tracking U Avg
-%                     %figure
-%                     clf,hold on;
-%                     plot(mean(reshape(agentsA{m}.exemplarTracking(5,1:i),10,i/10)), 'r--');
-%                     plot(mean(reshape(agentsA{m}.exemplarTracking(6,1:i),10,i/10)), 'b-');
-%                     %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
-%                     title(strcat('Exemplar Tracking U Avg. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
-%                     %title('points');
-%                     drawnow;
-%                 end
-%                 
-%                 if(mod(i,10)==0)
-%                   
-%                     %plot exemplar tracking U Sum
-%                     %figure
-%                     clf,hold on;
-%                     plot(mean(reshape(agentsA{m}.exemplarTracking(1,1:i),10,i/10)), 'r--');
-%                     plot(mean(reshape(agentsA{m}.exemplarTracking(2,1:i),10,i/10)), 'b-');
-%                     %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
-%                     title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
-%                     %title('points');
-%                     drawnow;
-%                 end
-%                 
-%                 if(mod(i,10)==0)
-%                     %plot exemplar tracking V Avg
-%                     %figure
-%                     clf,hold on;
-%                     plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'r--');
-%                     plot(mean(reshape(agentsA{m}.exemplarTracking(8,1:i),10,i/10)), 'b-');
-%                     %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
-%                     title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
-%                     %title('points');
-%                     drawnow;
-%                 end
-%                 
-%                 if(mod(i,10)==0)  
-%                     %plot exemplar tracking V Sum
-%                     %figure
-%                     clf,hold on;
-%                     plot(mean(reshape(agentsA{m}.exemplarTracking(3,1:i),10,i/10)), 'r--');
-%                     plot(mean(reshape(agentsA{m}.exemplarTracking(4,1:i),10,i/10)), 'b-');
-%                     %plot(mean(reshape(agentsA{m}.exemplarTracking(7,1:i),10,i/10)), 'b-');
-%                     title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agentsA{m}.nExemplars), '. nSchemas =', num2str(agentsA{m}.nSchemas(i)), '. SchemaThreshold =', num2str(agentsA{m}.schemaInductionThreshold), '. LearningRates =', num2str(agentsA{m}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
-%                     %title('points');
-%                     drawnow;
-%                 end
-%                 
-                 
-                %compare stored values to optimal player's
-%                 for m = 1:length(agentsA)   %for each model
-%                     p = agentsA{m};
-%                     keys = p.v.keys;
-%                     for k = 1:length(keys)
-%                       diffs(m, i) = diffs(m, i) + p.v(keys{k}) - g.p0.v(keys{k});
-%                     end
-%                     diffs(m, i) = diffs(m, i) / length(keys);   %normalize 
-%                 end
-
-            
             end
         end
-    end
-    
-    methods(Static)
-        %git fetch
-        %git reset --hard origin/master
-        
- 
-        function time = main(agents, blocks)
-            %% main function
-            blocks = 100;
-            agents = {};
-            prepopulate = 0;    %0 for no prepopulation, 1 for prepopulation
-            prepopSize = 100;
-            recruitment = 2;   %0 for no recruitment, 1 for recruit all, 2 for probablistic recruitment
-            trainingRounds = 10; %numGames is 1 x trainingRounds (but self-play so model sees each game from both sides)
-            testingRounds = 1; %numGames is 2 x testingRounds
-            scores = {};
-            %agents = {};
-            ticID = tic;
-            iterations = 1;
-            %parfor i=1:iterations
-            for i=1:iterations
-                disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
-                g = Game;
-                p0 = OptimalAgent(g.d);
-                g.p0 = p0;
-                %create separate Game and OptimalAgents (and Domains) for each set of models
-%                 g1 = Game;
-%                 p01 = OptimalAgent(g1.d);  
-%                 g1.p0 = p01;
-%                 g3 = Game;
-%                 p03 = OptimalAgent(g3.d);
-%                 g3.p0 = p03;
-%                 g5 = Game;
-%                 p05 = OptimalAgent(g5.d);
-%                 g5.p0 = p05;
-%                 g7 = Game;
-%                 p07 = OptimalAgent(g7.d);
-%                 g7.p0 = p07;
-%                 g9 = Game;
-%                 p09 = OptimalAgent(g9.d);
-%                 g9.p0 = p09;
-
-                %create featural players
-                p1 = Agent(g.d, 1, recruitment, 0);
-                p2 = Agent(g.d, 1, recruitment, 0);
-                %create symmetric players
-                p3 = Agent(g.d, 2, recruitment, 0);
-                p4 = Agent(g.d, 2, recruitment, 0);
-                
-               % p3b = Agent(g.d, 2, recruitment, 0);
-               % p4b = Agent(g.d, 2, recruitment, 0);
-    %                 %p3b.alpha_u=0;
-    %                 %p4b.alpha_u=0;
-    %                 %create endowed relational mode
-    %                 schema1 = [1 1 1; 3 3 3; 3 3 3];
-    %                 schema2 = [1 3 3; 3 1 3; 3 3 1];
-    %                 schema3 = [2 2 0; 3 3 3; 3 3 3];
-    %                 schema4 = [2 3 3; 3 2 3; 3 3 0];
-    %                 %schemas = [schema1 schema2 schema3 schema4];
-    %                 s1 = p3b.d.id(schema1);
-    %                 s2 = p3b.d.id(schema2);
-    %                 s3 = p3b.d.id(schema3);
-    %                 s4 = p3b.d.id(schema4);
-    %                 s1 = p4b.d.id(schema1);
-    %                 s2 = p4b.d.id(schema2);
-    %                 s3 = p4b.d.id(schema3);
-    %                 s4 = p4b.d.id(schema4);
-    %                 schemas = [s1 s2 s3 s4];
-    %                 p3b.applyCachedSchemas(schemas, zeros(1,length(schemas)),schemas,zeros(1,length(schemas)));
-    %                 p4b.applyCachedSchemas(schemas, zeros(1,length(schemas)),schemas,zeros(1,length(schemas)));
-    %                 
-                %create endowed schema players
-%                p5 = Agent(g.d, 3, recruitment, 0);
-%                p6 = Agent(g.d, 3, recruitment, 0);
-                %create schema induction players
-                p7 = Agent(g.d, 2, recruitment, 1);
-                p8 = Agent(g.d, 2, recruitment, 1);
-                p7.schemaInductionThreshold = 7;
-                p8.schemaInductionThreshold = 7;
-                p7.macThreshold = 100;
-                p8.macThreshold = 100;
-%                 p9 = Agent(g3.d, 2, recruitment, 1);
-%                 p10 = Agent(g3.d, 2, recruitment, 1);
-%                 p9.schemaInductionThreshold = 6;
-%                 p10.schemaInductionThreshold = 6;
-%                 p9.macThreshold = 100;
-%                 p10.macThreshold = 100;
-%                 p11 = Agent(g5.d, 2, recruitment, 1);
-%                 p12 = Agent(g5.d, 2, recruitment, 1);
-%                 p11.schemaInductionThreshold = 6;
-%                 p12.schemaInductionThreshold = 6;
-%                 p11.macThreshold = 10000000;
-%                 p12.macThreshold = 10000000;
-                %yoked induction players
-                yoked = 0;
-                if(yoked==1)
-                    load('yoked1000.mat');
-                    p9 = Agent(g.d, 2, recruitment, 1);
-                    p10 = Agent(g.d, 2, recruitment, 1);
-                    p9.schemaInductionThreshold = -1;
-                    p10.schemaInductionThreshold = -1;
-                    %split guided model's schemas and schemaSizes vectors into even/odd vectors
-                    nSchemasByTurn = p7.nSchemasByTurn;
-                    nSchemasByTurnSizes = p7.nSchemasByTurnSizes;
-                    p9.nSchemasYoked = nSchemasByTurn(1:2:end); %odd elements
-                    p10.nSchemasYoked = nSchemasByTurn(2:2:end); %even elements
-                    p9.nSchemasYokedSizes = nSchemasByTurnSizes(1:2:end); %odd elements
-                    p10.nSchemasYokedSizes = nSchemasByTurnSizes(2:2:end); %even elements
-                    agentsA = {p9};
-                    agentsB = {p10};
-                elseif(yoked==0)
-                    agentsA = {p7};
-                    agentsB = {p8};
-                end
-                agentsA = {p1, p3, p7};
-                agentsB = {p2, p4, p8};
-             
-             
-                agents{i} = agentsA;
-                for m=1:length(agentsA)
-                    agentsA{m}.blocks = blocks;
-                    agentsB{m}.blocks = blocks;
-                end
-                %prepopulate if specified
-                if(prepopulate==1)
-                    sample = g.p0.sampleExemplars(prepopSize);
-                    for m=1:length(agentsA)
-                        pA = agentsA{m};
-                        pB = agentsB{m};
-                        pA.prepopulateExemplars(sample);
-                        pB.prepopulateExemplars(sample);
-                    end
-                end
-                %train and play models against optimal player
-                [props diffs points nSchemas] = g.evaluate(agentsA, agentsB, trainingRounds, testingRounds, blocks, i);
-                scores{i} = {props diffs points};
-                for m=1:length(agentsA)
-                    agentsA{m}.scores = scores{i};
-                    agentsB{m}.blocks = scores{i};
-                end
-            end
-            time = toc(ticID)
-            if(yoked==0)
-                %save('yoked1000_autosave.mat', 'p7', 'p8');
-            end
-            saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iterations=', int2str(iterations));
-            save(saveStr, 'scores', 'agents');
-            Game.analyzeScores(scores, length(agents{1}), blocks);
-            Game.plotExemplarTracking(agentsA{3}, blocks);
-        end
-        
         
         function plotExemplarTracking(agent, blocks)
             %plot exemplar tracking U Avg

@@ -66,6 +66,8 @@ classdef Agent < handle
                  %1 for mac/fac
         macThreshold = 10; %number of exemplars that get through MAC phase (to be FAC candidates)
         macUExp = 1; %contribution of u to mac score
+        uLearning = 0; %0 for no u learning
+                       %1 for u learning
         
         %diagnostics               
         dbug = 0; %0 suppress debugging information
@@ -96,7 +98,7 @@ classdef Agent < handle
     
     methods
         %constructor, initialized with reference to domain object
-        function ag = Agent(domain, simType, recruitType, schemaInduction)
+        function ag = Agent(domain, simType, recruitType, schemaInduction, uLearning)
             ag.d = domain;
             ag.simType = simType;
             ag.recruitType = recruitType;
@@ -108,7 +110,9 @@ classdef Agent < handle
             ag.u_cache = zeros(ag.nValues, 1);
             ag.z = zeros(ag.nValues, 1);
             ag.stateVisits = zeros(ag.nValues, 1);
-            ag.exemplarGeneration = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
+            %ag.exemplarGeneration = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
+            ag.exemplarGeneration = zeros(ag.nValues, 1);
+            ag.uLearning = uLearning;
     
 
             %the tradeoff between those thresholds makes sense.  if you want induction rate to be roughly 
@@ -126,6 +130,13 @@ classdef Agent < handle
             elseif(simType == 3)
                 ag.h = ag.d.hSymSchema;
                 ag.initializeSchemas();
+            end
+            
+            %learn u values or keep constant?
+            if(uLearning == 0)
+                ag.alpha_u = 0;
+            elseif(uLearning == 1)
+                %keep alpha_u as set above
             end
         end
         
@@ -390,6 +401,7 @@ classdef Agent < handle
             ag.E = ag.E(ag.u(ag.E)>=0);
             
             %diagnostics
+            %{
             nextGen = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
             for e = ag.E
                 if(ag.exemplarGeneration.isKey(e))
@@ -399,6 +411,11 @@ classdef Agent < handle
                 end
             end
             ag.exemplarGeneration = nextGen;
+            %}
+            
+            prevGen = ag.exemplarGeneration;
+            ag.exemplarGeneration = zeros(length(ag.exemplarGeneration),1);
+            ag.exemplarGeneration(ag.E) = prevGen(ag.E)+1;
             
             
             %sort(ag.u(ag.E), 'descend')  %dbug
@@ -543,12 +560,13 @@ classdef Agent < handle
                 ag.u(end+pad) = ag.initial_u;  %w
                 ag.u_cache(end+pad) = 0;
                 %ag.h(end+pad,end+pad) = 0;
-                ag.h(:,end+pad) = 0;
-                %if(size(ag.h,2)<ag.nValues+pad)
+                %ag.h(:,end+pad) = 0;
+                if(size(ag.h,2)<ag.nValues+pad)
                     %pad h excessively for efficiency reasons
-                 %   ag.h(:,end+100) = 0;
-                %end
+                    ag.h(:,end+500) = 0;
+                end
                 ag.z(end+pad) = 0;
+                ag.exemplarGeneration(end+pad) = 0;
             end
               for i = 1:length(schemas)
                 schema = schemas(i);
@@ -750,6 +768,10 @@ classdef Agent < handle
                     %updates_v = (TD*ag.h(as1, ag.E) / denom)'; %old
                     %updates_v = (TD*h.*u' / denom)'; %u
                     updates_v = ag.alpha_v*(TD*h.*u' / denom)';  %w
+                    if(length(ag.v_cache) < max(ag.Eact))
+                        length(ag.v_cache)
+                        max(ag.Eact)
+                    end
                     ag.v_cache(ag.Eact) = ag.v_cache(ag.Eact) + updates_v;
 
                     %cache updates to u
@@ -805,8 +827,8 @@ classdef Agent < handle
         function applyCachedUpdatesU(ag, updates_u)
            ag.u = ag.u + updates_u; 
            ag.sumUupdates = [ag.sumUupdates sum(updates_u)];
-           if(ag.annealLearningRates==1)
-            ag.alpha_u = min(1/sqrt(length(ag.nSchemas)), .1);
+           if(ag.annealLearningRates==1 && ag.uLearning~=0)
+               ag.alpha_u = min(1/sqrt(length(ag.nSchemas)), .1);
            end
         end
         

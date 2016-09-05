@@ -8,7 +8,7 @@ classdef OptimalAgent < Agent
     
     methods
         function oa = OptimalAgent(d)
-            oa = oa@Agent(d, 0, 0, 0);   %simType and recruitment doesn't matter, optimal agent doesn't generalize
+            oa = oa@Agent(d, 0, 0, 0, 0);   %simType and recruitment doesn't matter, optimal agent doesn't generalize
             disp('initializing Optimal Agent')
             %uncomment next two lines and comment 3rd and 4th lines to re-create optimalAgent
             %[stack children] = oa.expandTree();  
