@@ -196,7 +196,7 @@ classdef Game < handle
  
         function [agents, scores] = main(blocks)
             %% main function
-            %blocks = 100;
+            blocks = 100;
             agents = {};
             prepopulate = 0;    %0 for no prepopulation, 1 for prepopulation
             prepopSize = 100;
@@ -205,9 +205,9 @@ classdef Game < handle
             testingRounds = 1; %numGames is 2 x testingRounds
             scores = {};
             ticID = tic;
-            iterations = 30;
-            parfor i=1:iterations
-            %for i=1:iterations
+            iterations = 1;
+            %parfor i=1:iterations
+            for i=1:iterations
                 disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
                 %g = Game;
                 %p0 = OptimalAgent(g.d);
@@ -215,7 +215,7 @@ classdef Game < handle
                 %create separate Game and OptimalAgents (and Domains) for each set of models
                 g1 = Game();
                 g3 = Game();
-                g5 = Game();
+                %g5 = Game();
                 g7 = Game();
                 g9 = Game();
              
@@ -345,6 +345,12 @@ classdef Game < handle
             points = zeros(length(agentsA), nBlocks); %model types x blocks
             nSchemas = zeros(length(agentsA), nBlocks); %model types x blocks
             numExemplars = zeros(length(agentsA), nBlocks); %model types x blocks
+            uOverTimeBySize = NaN(length(agentsA),9,nBlocks);
+            vOverTimeBySize = NaN(length(agentsA),9,nBlocks);
+            sizeCountsOverTime = zeros(length(agentsA),9,nBlocks);
+            generationOverTimeBySize = NaN(length(agentsA),9,nBlocks);
+            schemaStatsTables = cell(length(AgentsA),nBlocks);
+            
             for i=1:nBlocks
                 disp(strcat('Block: ', int2str(i), '/', int2str(nBlocks)));
                 %train
@@ -373,7 +379,27 @@ classdef Game < handle
                     exemplarTracking = [exemplarU schemaU exemplarV schemaV exemplarAvgU schemaAvgU exemplarAvgV schemaAvgV]';
                     agentsA{m}.exemplarTracking = [agentsA{m}.exemplarTracking exemplarTracking];
                     
+                    %avgU by size over time
+                    schemas = agentsA{m}.E(agentsA{m}.E>5477);
+                    schemaSizes = agentsA{m}.exemplarSizes(schemas);
+                    schemaUs = agentsA{m}.u(schemas);
+                    schemaVs = agentsA{m}.v(schemas);
+                    schemaGeneration = agentsA{m}.exemplarGeneration(schemas);
+                    schemaTable = table(schemaSizes, schemaUs, schemaVs, schemaGeneration);
+                    schemaStatsTables{m} = grpstats(schemaTable, 'schemaSizes', 'mean', 'DataVars', {'schemaUs','schemaVs','schemaGeneration'});
+                    %uArray = schemaStatsArray(1:9,3)
                     
+                    for size=1:8
+                        uOverTimeBySize(m,size,i) = mean(schemaUs(schemaSizes==size));
+                        vOverTimeBySize(m,size,i) = mean(schemaVs(schemaSizes==size));
+                        sizeCountsOverTime(m,size,i) = sum(schemaSizes==size);
+                        generationOverTimeBySize(m,size,i) = mean(schemaGeneration(schemaSizes==size));
+                    end
+                    agentsA{m}.uOverTimeBySize = uOverTimeBySize(m,:,:); %squeeze these to get rid of singleton dimensions
+                    agentsA{m}.vOverTimeBySize = vOverTimeBySize(m,:,:);
+                    agentsA{m}.sizeCountsOverTime = sizeCountsOverTime(m,:,:);
+                    agentsA{m}.generationOverTimeBySize = generationOverTimeBySize(m,:,:);
+
                     if(games{m}.diagnostics>0)
                         ag = agentsA{m};
                         gen = zeros(length(ag.E),1);
@@ -391,7 +417,7 @@ classdef Game < handle
                 latestNumExemplars = numExemplars(:,max(1,i-9):i) %output numExemplars
                 %exemplarTracking labels [{'exemplarU'} {'schemaU'} {'exemplarV'} {'schemaV'} {'exemplarAvgU'} {'schemaAvgU'} {'exemplarAvgV'} {'schemaAvgV'}]']
                 latestExemplarTracking = agentsA{m}.exemplarTracking(:,max(1,i-9):i)   %output exemplarTracking (for the specified agent)
-               
+                schemaStatsTables{m,i}
                 %avg u by size
                 
                 

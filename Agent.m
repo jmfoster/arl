@@ -93,6 +93,11 @@ classdef Agent < handle
         schemaUbyBlock = [];
         exemplarVbyBlock = [];
         schemaVbyBlock = [];
+        exemplarSizes;
+        uOverTimeBySize;
+        vOverTimeBySize;
+        sizeCountsOverTime;
+        generationOverTimeBySize;
         
     end
     
@@ -113,6 +118,7 @@ classdef Agent < handle
             %ag.exemplarGeneration = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
             ag.exemplarGeneration = zeros(ag.nValues, 1);
             ag.uLearning = uLearning;
+            ag.exemplarSizes = zeros(ag.nValues, 1)+9; %initialize sizes of true exemplars to 9
     
 
             %the tradeoff between those thresholds makes sense.  if you want induction rate to be roughly 
@@ -567,6 +573,7 @@ classdef Agent < handle
                 end
                 ag.z(end+pad) = 0;
                 ag.exemplarGeneration(end+pad) = 0;
+                ag.exemplarSizes(end+pad) = 0;
             end
               for i = 1:length(schemas)
                 schema = schemas(i);
@@ -720,6 +727,7 @@ classdef Agent < handle
                 schema = schema_cache(i);
                 schema_value = schema_cached_values(i);
                 ag.recruitExemplar(schema, schema_value); %recruit schema into exemplars
+                ag.exemplarSizes(schema) = ag.d.getSchemaSize(schema);
             end          
         end
         
