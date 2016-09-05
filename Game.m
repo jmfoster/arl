@@ -196,7 +196,7 @@ classdef Game < handle
  
         function [agents, scores] = main(blocks)
             %% main function
-            blocks = 100;
+            %blocks = 100;
             agents = {};
             prepopulate = 0;    %0 for no prepopulation, 1 for prepopulation
             prepopSize = 100;
@@ -205,9 +205,9 @@ classdef Game < handle
             testingRounds = 1; %numGames is 2 x testingRounds
             scores = {};
             ticID = tic;
-            iterations = 1;
-            %parfor i=1:iterations
-            for i=1:iterations
+            iterations = 30;
+            parfor i=1:iterations
+            %for i=1:iterations
                 disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
                 %g = Game;
                 %p0 = OptimalAgent(g.d);
@@ -411,15 +411,16 @@ classdef Game < handle
                     end
                 end
                 
-                %props(:,:,i)
-                latestPoints = points(:,max(1,i-9):i) %output points
-                latestNSchemas = nSchemas(:,max(1,i-9):i) %output nSchemas
-                latestNumExemplars = numExemplars(:,max(1,i-9):i) %output numExemplars
-                %exemplarTracking labels [{'exemplarU'} {'schemaU'} {'exemplarV'} {'schemaV'} {'exemplarAvgU'} {'schemaAvgU'} {'exemplarAvgV'} {'schemaAvgV'}]']
-                latestExemplarTracking = agentsA{m}.exemplarTracking(:,max(1,i-9):i)   %output exemplarTracking (for the specified agent)
-                schemaStatsTables{m,i}
-                %avg u by size
-                
+                if(mod(i,100)==0)
+                    %props(:,:,i)
+                    latestPoints = points(:,max(1,i-9):i) %output points
+                    latestNSchemas = nSchemas(:,max(1,i-9):i) %output nSchemas
+                    latestNumExemplars = numExemplars(:,max(1,i-9):i) %output numExemplars
+                    %exemplarTracking labels [{'exemplarU'} {'schemaU'} {'exemplarV'} {'schemaV'} {'exemplarAvgU'} {'schemaAvgU'} {'exemplarAvgV'} {'schemaAvgV'}]']
+                    latestExemplarTracking = agentsA{m}.exemplarTracking(:,max(1,i-9):i)   %output exemplarTracking (for the specified agent)
+                    schemaStatsTables{m,i}
+                    %avg u by size
+                end
                 
 
                 if(mod(i,1000)==0)
@@ -441,7 +442,7 @@ classdef Game < handle
              
                 if(mod(i,1000)==0)
                     %saveStr = strcat('autosave_iter=', num2str(iteration), '_blocks=', int2str(i), '_nExemplars=', num2str(agentsA{1}.nExemplars), '_SchemaThreshold=', num2str(agentsA{1}.schemaInductionThreshold), '_normalizeActivation=',num2str(agentsA{1}.normalizeActivation), '_LearningRates=', num2str(agentsA{1}.alpha_v), '_', num2str(agentsA{1}.alpha_u),'.mat');
-                    %save(saveStr, 'points', 'agentsA');
+                    %save(saveStr, 'points', 'agentsA', '-v7.3');
                 end
             end
         end
