@@ -194,7 +194,7 @@ classdef Game < handle
         %git reset --hard origin/master
         
  
-        function [agents, scores] = main(blocks)
+        function [agents, scores] = main(blocks, iterations)
             %% main function
             %blocks = 10;
             agents = {};
@@ -205,8 +205,8 @@ classdef Game < handle
             testingRounds = 1; %numGames is 2 x testingRounds
             scores = {};
             ticID = tic;
-            iterations = 12;
-            results = {};
+            %iterations = 1;
+            results = cell(iterations);
             parfor i=1:iterations
             %for i=1:iterations
                 disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
@@ -266,9 +266,6 @@ classdef Game < handle
 %                p5 = Agent(g.d, 3, recruitment, 0);
 %                p6 = Agent(g.d, 3, recruitment, 0);
                
-                
-                
-                
 %                 p9 = Agent(g3.d, 2, recruitment, 1);
 %                 p10 = Agent(g3.d, 2, recruitment, 1);
 %                 p9.schemaInductionThreshold = 6;
@@ -320,7 +317,8 @@ classdef Game < handle
                 end
                 %train and play models against optimal player
                 %[props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = 
-                results{i} = Game.evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, blocks, i);
+                [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = Game.evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, blocks, i);
+                results{i} = {props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize};
                 %scores{i} = {props diffs points};
                 %scoresI = {props diffs points};
                 for m=1:length(agentsA)
@@ -328,15 +326,17 @@ classdef Game < handle
                     %agentsB{m}.blocks = scores{i};
                 end
             end
+            'end parfor'
             
             time = toc(ticID)
             
             for i = 1:iterations
-                saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations));
+                saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations))
                 %scoresI = scores{i};
                 %agentsA = agents{i};
                 %save(saveStr, 'scoresI', 'agentsA', '-v7.3');
                 results = results{i};
+                %save(saveStr, 'results', '-v7.3');
                 save(saveStr, 'results', '-v7.3');
             end
             
