@@ -88,7 +88,7 @@ classdef Agent < handle
         nSchemasByTurnSizes = {};  %array of schema sizes, without turn boundaries (use nSchemasByTurn to determine turn boundaries)
         turn = 0;
         sumUupdates = [];
-        exemplarTracking = zeros(8, 0)
+        exemplarTracking = zeros(8,0)
         exemplarUbyBlock = [];
         schemaUbyBlock = [];
         exemplarVbyBlock = [];

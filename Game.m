@@ -196,7 +196,7 @@ classdef Game < handle
  
         function [agents, scores] = main(blocks)
             %% main function
-            %blocks = 100;
+            %blocks = 10;
             agents = {};
             prepopulate = 0;    %0 for no prepopulation, 1 for prepopulation
             prepopSize = 100;
@@ -205,7 +205,8 @@ classdef Game < handle
             testingRounds = 1; %numGames is 2 x testingRounds
             scores = {};
             ticID = tic;
-            iterations = 30;
+            iterations = 12;
+            results = {};
             parfor i=1:iterations
             %for i=1:iterations
                 disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
@@ -284,8 +285,8 @@ classdef Game < handle
                 yoked = -1;
                 if(yoked==1)
                     load('yoked1000.mat');
-                    p9 = Agent(g.d, 2, recruitment, 1);
-                    p10 = Agent(g.d, 2, recruitment, 1);
+                    p9 = Agent(Game.d, 2, recruitment, 1);
+                    p10 = Agent(Game.d, 2, recruitment, 1);
                     p9.schemaInductionThreshold = -1;
                     p10.schemaInductionThreshold = -1;
                     %split guided model's schemas and schemaSizes vectors into even/odd vectors
@@ -301,8 +302,6 @@ classdef Game < handle
                     agentsA = {p7};
                     agentsB = {p8};
                 end
- 
-             
              
                 agents{i} = agentsA;
                 for m=1:length(agentsA)
@@ -311,7 +310,7 @@ classdef Game < handle
                 end
                 %prepopulate if specified
                 if(prepopulate==1)
-                    sample = g.p0.sampleExemplars(prepopSize);
+                    sample = Game.p0.sampleExemplars(prepopSize);
                     for m=1:length(agentsA)
                         pA = agentsA{m};
                         pB = agentsB{m};
@@ -320,26 +319,39 @@ classdef Game < handle
                     end
                 end
                 %train and play models against optimal player
-                [props diffs points nSchemas] = Game.evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, blocks, i);
-                scores{i} = {props diffs points};
+                %[props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = 
+                results{i} = Game.evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, blocks, i);
+                %scores{i} = {props diffs points};
+                %scoresI = {props diffs points};
                 for m=1:length(agentsA)
-                    agentsA{m}.scores = scores{i};
-                    agentsB{m}.blocks = scores{i};
+                    %agentsA{m}.scores = scores{i};
+                    %agentsB{m}.blocks = scores{i};
                 end
             end
+            
             time = toc(ticID)
+            
+            for i = 1:iterations
+                saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations));
+                %scoresI = scores{i};
+                %agentsA = agents{i};
+                %save(saveStr, 'scoresI', 'agentsA', '-v7.3');
+                results = results{i};
+                save(saveStr, 'results', '-v7.3');
+            end
+            
             %if(yoked==0)
                 %save('yoked1000_autosave.mat', 'p7', 'p8');
             %end
-            saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iterations=', int2str(iterations));
-            save(saveStr, 'scores', 'agents', '-v7.3');
+            %saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iterations=', int2str(iterations));
+            %save(saveStr, 'scores', 'agents', '-v7.3');
             %Game.analyzeScores(scores, length(agents{1}), blocks);
             %Game.plotExemplarTracking(agentsA{3}, blocks);
         end
         
         
         
-        function [props diffs points nSchemas] = evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, nBlocks, iteration)
+        function [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, nBlocks, iteration)
             props = zeros(length(agentsA), 3, nBlocks);  %model types x wins/losses/draws x blocks
             diffs = zeros(length(agentsA), nBlocks); %model types x blocks
             points = zeros(length(agentsA), nBlocks); %model types x blocks
@@ -349,7 +361,8 @@ classdef Game < handle
             vOverTimeBySize = NaN(length(agentsA),9,nBlocks);
             sizeCountsOverTime = zeros(length(agentsA),9,nBlocks);
             generationOverTimeBySize = NaN(length(agentsA),9,nBlocks);
-            schemaStatsTables = cell(length(AgentsA),nBlocks);
+            schemaStatsTables = cell(length(agentsA),nBlocks);
+            exemplarTracking = zeros(8, nBlocks, length(agentsA));
             
             for i=1:nBlocks
                 disp(strcat('Block: ', int2str(i), '/', int2str(nBlocks)));
@@ -376,8 +389,8 @@ classdef Game < handle
                     schemaAvgU = schemaU/nSchemas(m,i);
                     exemplarAvgV = exemplarV/(numExemplars(m,i)-nSchemas(m,i));
                     schemaAvgV = schemaV/nSchemas(m,i);
-                    exemplarTracking = [exemplarU schemaU exemplarV schemaV exemplarAvgU schemaAvgU exemplarAvgV schemaAvgV]';
-                    agentsA{m}.exemplarTracking = [agentsA{m}.exemplarTracking exemplarTracking];
+                    exemplarTracking(:,i,m) = [exemplarU schemaU exemplarV schemaV exemplarAvgU schemaAvgU exemplarAvgV schemaAvgV]';
+                    agentsA{m}.exemplarTracking = [agentsA{m}.exemplarTracking exemplarTracking(:,i,m)];
                     
                     %avgU by size over time
                     schemas = agentsA{m}.E(agentsA{m}.E>5477);
