@@ -330,30 +330,32 @@ classdef Game < handle
                     %agentsA{m}.scores = scores{i};
                     %agentsB{m}.blocks = scores{i};
                 end
-                disp('about to end parfor')
+                %disp('about to end parfor')
             end
-            disp('end parfor')
+            %disp('end parfor')
             delete(gcp('nocreate'))
-            disp('shut down parallel pool')
+            %disp('shut down parallel pool')
             time = toc(ticID)
             
-%             for i = 1:iterations
-%                 saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations))
-%                 %scoresI = scores{i};
-%                 %agentsA = agents{i};
-%                 %save(saveStr, 'scoresI', 'agentsA', '-v7.3');
-%                 resultsI = results{i};
-%                 %save(saveStr, 'results', '-v7.3');
-%                 save(saveStr, 'resultsI', '-v7.3');
-%             end
+            for i = 1:iterations
+                saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations))
+                disp('saving results file')
+                disp(saveStr)
+                %scoresI = scores{i};
+                %agentsA = agents{i};
+                %save(saveStr, 'scoresI', 'agentsA', '-v7.3');
+                resultsI = results{i};
+                %save(saveStr, 'results', '-v7.3');
+                save(saveStr, 'resultsI', '-v7.3');
+            end
             
             %if(yoked==0)
                 %save('yoked1000_autosave.mat', 'p7', 'p8');
             %end
-            disp('saving results file')
-            saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iterations=', int2str(iterations));
+            %disp('saving results file')
+            %saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iterations=', int2str(iterations));
             %save(saveStr, 'scores', 'agents', '-v7.3');
-            save(saveStr, 'results', '-v7.3');
+            %save(saveStr, 'results', '-v7.3');
             %Game.analyzeScores(scores, length(agents{1}), blocks);
             %Game.plotExemplarTracking(agentsA{3}, blocks);
         end

@@ -7,4 +7,4 @@ module load matlab
 module load slurm
 cd /projects/jmf/arl
 
-matlab -nodesktop -nosplash -r "run.m"
+matlab -nodesktop -nosplash -r "run"
