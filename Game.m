@@ -447,29 +447,29 @@ classdef Game < handle
                 end
                 
 
-                if(mod(i,1000)==0)
-                    %plotpoints
-                    %figure;
-                    clf,hold on;
-                    %meanPoints = mean(reshape(points(:,1:i),10,i/10));
-                    plot(mean(reshape(points(1,1:i),10,i/10)), 'k:');
-                    if(size(points,1)>1)
-                        plot(mean(reshape(points(2,1:i),10,i/10)), 'r--');
-                    end
-                    if(size(points,1)>2)
-                        plot(mean(reshape(points(3,1:i),10,i/10)), 'b-');
-                    end
-                    title(strcat('Points. nExemplars = ', num2str(agentsA{1}.nExemplars), '. SchemaThreshold = ', num2str(agentsA{1}.schemaInductionThreshold), '. LearningRates = ', num2str(agentsA{1}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
-                    %title('points');
-                    drawnow;
-                end
+%                 if(mod(i,1000)==0)
+%                     %plotpoints
+%                     %figure;
+%                     clf,hold on;
+%                     %meanPoints = mean(reshape(points(:,1:i),10,i/10));
+%                     plot(mean(reshape(points(1,1:i),10,i/10)), 'k:');
+%                     if(size(points,1)>1)
+%                         plot(mean(reshape(points(2,1:i),10,i/10)), 'r--');
+%                     end
+%                     if(size(points,1)>2)
+%                         plot(mean(reshape(points(3,1:i),10,i/10)), 'b-');
+%                     end
+%                     title(strcat('Points. nExemplars = ', num2str(agentsA{1}.nExemplars), '. SchemaThreshold = ', num2str(agentsA{1}.schemaInductionThreshold), '. LearningRates = ', num2str(agentsA{1}.alpha_v), ',', num2str(agentsA{1}.alpha_u)));
+%                     %title('points');
+%                     drawnow;
+%                 end
              
                 if(mod(i,1000)==0)
                     %saveStr = strcat('autosave_iter=', num2str(iteration), '_blocks=', int2str(i), '_nExemplars=', num2str(agentsA{1}.nExemplars), '_SchemaThreshold=', num2str(agentsA{1}.schemaInductionThreshold), '_normalizeActivation=',num2str(agentsA{1}.normalizeActivation), '_LearningRates=', num2str(agentsA{1}.alpha_v), '_', num2str(agentsA{1}.alpha_u),'.mat');
                     %save(saveStr, 'points', 'agentsA', '-v7.3');
                 end
             end
-            disp('end evaluate() function')
+            %disp('end evaluate() function')
         end
         
         function plotExemplarTracking(agent, blocks)

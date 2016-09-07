@@ -1,10 +1,11 @@
 #!/bin/bash
 
+#SBATCH --ntasks 1
 #SBATCH --output arl.out
-#SBATCH --qos janus-debug
+#SBATCH --qos janus
 
 module load matlab
 module load slurm
-cd /projects/jmf/arl
+setenv HOME /projects/jmf/arl
 
 matlab -nodesktop -nosplash -r "run"
