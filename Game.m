@@ -194,21 +194,21 @@ classdef Game < handle
         %git reset --hard origin/master
         
  
-        function [agents, scores] = main(blocks, iterations)
+        function [agents, scores, results] = main(blocks, iterations, numWorkers)
             %% main function
             %blocks = 10;
-            agents = {};
+            agents = cell(iterations);
             prepopulate = 0;    %0 for no prepopulation, 1 for prepopulation
             prepopSize = 100;
             recruitment = 2;   %0 for no recruitment, 1 for recruit all, 2 for probablistic recruitment
             trainingRounds = 10; %numGames is 1 x trainingRounds (but self-play so model sees each game from both sides)
             testingRounds = 1; %numGames is 2 x testingRounds
-            scores = {};
+            scores = cell(iterations);
             ticID = tic;
             %iterations = 1;
             results = cell(iterations);
-            parfor i=1:iterations
-            %for i=1:iterations
+            %parfor i=1:iterations
+            parfor(i=1:iterations, numWorkers)
                 disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
                 %g = Game;
                 %p0 = OptimalAgent(g.d);
@@ -319,32 +319,36 @@ classdef Game < handle
                 %[props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = 
                 [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = Game.evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, blocks, i);
                 results{i} = {props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize};
-                %scores{i} = {props diffs points};
+                scores{i} = {props diffs points};
                 %scoresI = {props diffs points};
                 for m=1:length(agentsA)
-                    %agentsA{m}.scores = scores{i};
+                    agentsA{m}.scores = scores{i};
                     %agentsB{m}.blocks = scores{i};
                 end
+                disp('about to end parfor')
             end
-            'end parfor'
-            
+            disp('end parfor')
+            delete(gcp('nocreate'))
+            disp('shut down parallel pool')
             time = toc(ticID)
             
-            for i = 1:iterations
-                saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations))
-                %scoresI = scores{i};
-                %agentsA = agents{i};
-                %save(saveStr, 'scoresI', 'agentsA', '-v7.3');
-                results = results{i};
-                %save(saveStr, 'results', '-v7.3');
-                save(saveStr, 'results', '-v7.3');
-            end
+%             for i = 1:iterations
+%                 saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations))
+%                 %scoresI = scores{i};
+%                 %agentsA = agents{i};
+%                 %save(saveStr, 'scoresI', 'agentsA', '-v7.3');
+%                 resultsI = results{i};
+%                 %save(saveStr, 'results', '-v7.3');
+%                 save(saveStr, 'resultsI', '-v7.3');
+%             end
             
             %if(yoked==0)
                 %save('yoked1000_autosave.mat', 'p7', 'p8');
             %end
-            %saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iterations=', int2str(iterations));
+            disp('saving results file')
+            saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iterations=', int2str(iterations));
             %save(saveStr, 'scores', 'agents', '-v7.3');
+            save(saveStr, 'results', '-v7.3');
             %Game.analyzeScores(scores, length(agents{1}), blocks);
             %Game.plotExemplarTracking(agentsA{3}, blocks);
         end
@@ -458,6 +462,7 @@ classdef Game < handle
                     %save(saveStr, 'points', 'agentsA', '-v7.3');
                 end
             end
+            disp('end evaluate() function')
         end
         
         function plotExemplarTracking(agent, blocks)
