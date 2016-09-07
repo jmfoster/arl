@@ -209,7 +209,9 @@ classdef Game < handle
             %iterations = 1;
             results = cell(iterations,1);
             %parfor i=1:iterations
-            parpool(numWorkers);
+            if(numWorkers>0)
+                parpool(numWorkers);
+            end
             parfor(i=1:iterations, numWorkers)
                 disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
                 %g = Game;
