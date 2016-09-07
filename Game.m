@@ -13,9 +13,10 @@ classdef Game < handle
     
     methods
         
-        function g = Game()
+        function g = Game(p0)
             g.d = TicTacToe();
-            g.p0 = OptimalAgent(g.d);
+            %g.p0 = OptimalAgent(g.d);
+            g.p0 = p0;
         end
         
         function train(g, p1, p2, nGames)
@@ -208,18 +209,19 @@ classdef Game < handle
             %iterations = 1;
             results = cell(iterations,1);
             %parfor i=1:iterations
-            parpool(numWorkers)
+            parpool(numWorkers);
             parfor(i=1:iterations, numWorkers)
                 disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
                 %g = Game;
                 %p0 = OptimalAgent(g.d);
                 %g.p0 = p0;
                 %create separate Game and OptimalAgents (and Domains) for each set of models
-                g1 = Game();
-                g3 = Game();
+                p0 = OptimalAgent(TicTacToe());
+                g1 = Game(p0);
+                g3 = Game(p0);
                 %g5 = Game();
-                g7 = Game();
-                g9 = Game();
+                g7 = Game(p0);
+                g9 = Game(p0);
              
                 %create featural players
                 p1 = Agent(g1.d, 1, recruitment, 0, 0);
