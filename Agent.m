@@ -33,7 +33,7 @@ classdef Agent < handle
         gamma = 1; %for temporal discounting
         alpha_v = .1; %learning rate for v
         alpha_u = .1; %learning rate for u (w)
-        annealLearningRates = 0; %0 for no annealing
+        annealLearningRates = 1; %0 for no annealing
                                  %1 for annealing
         simType; %set by parameter passed to constructor. 
                  %1 for featural, 
