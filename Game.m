@@ -322,8 +322,8 @@ classdef Game < handle
                 end
                 %train and play models against optimal player
                 %[props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = 
-                [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = Game.evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, blocks, i);
-                results{i} = {props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize};
+                [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize topGrids] = Game.evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, blocks, i);
+                results{i} = {props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize topGrids};
                 %scores{i} = {props diffs points};
                 %scoresI = {props diffs points};
                 for m=1:length(agentsA)
@@ -362,7 +362,7 @@ classdef Game < handle
         
         
         
-        function [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, nBlocks, iteration)
+        function [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize topGrids] = evaluate(games, agentsA, agentsB, trainingRounds, testingRounds, nBlocks, iteration)
             props = zeros(length(agentsA), 3, nBlocks);  %model types x wins/losses/draws x blocks
             diffs = zeros(length(agentsA), nBlocks); %model types x blocks
             points = zeros(length(agentsA), nBlocks); %model types x blocks
@@ -374,6 +374,7 @@ classdef Game < handle
             generationOverTimeBySize = NaN(length(agentsA),9,nBlocks);
             schemaStatsTables = cell(length(agentsA),nBlocks);
             exemplarTracking = zeros(8, nBlocks, length(agentsA));
+            topGrids = zeros(4,3,nBlocks/1000,length(agentsA),100);
             
             for i=1:nBlocks
                 disp(strcat('Block: ', int2str(i), '/', int2str(nBlocks)));
@@ -404,7 +405,7 @@ classdef Game < handle
                     agentsA{m}.exemplarTracking = [agentsA{m}.exemplarTracking exemplarTracking(:,i,m)];
                     
                     %avgU by size over time
-                    schemas = agentsA{m}.E(agentsA{m}.E>5477);
+                    schemas = agentsA{m}.E;  %not just schemas, all exemplars
                     schemaSizes = agentsA{m}.exemplarSizes(schemas);
                     schemaUs = agentsA{m}.u(schemas);
                     schemaVs = agentsA{m}.v(schemas);
@@ -412,8 +413,9 @@ classdef Game < handle
                     %schemaTable = table(schemaSizes, schemaUs, schemaVs, schemaGeneration);
                     %schemaStatsTables{m} = grpstats(schemaTable, 'schemaSizes', 'mean', 'DataVars', {'schemaUs','schemaVs','schemaGeneration'});
                     %uArray = schemaStatsArray(1:9,3)
+           
                     
-                    for size=1:8
+                    for size=1:9
                         uOverTimeBySize(m,size,i) = mean(schemaUs(schemaSizes==size));
                         vOverTimeBySize(m,size,i) = mean(schemaVs(schemaSizes==size));
                         sizeCountsOverTime(m,size,i) = sum(schemaSizes==size);
@@ -424,6 +426,20 @@ classdef Game < handle
                     agentsA{m}.sizeCountsOverTime = sizeCountsOverTime(m,:,:);
                     agentsA{m}.generationOverTimeBySize = generationOverTimeBySize(m,:,:);
 
+                    %top 100 exemplars over time
+                    if(mod(i,1000)==0)
+                       % agentsA{m}.E = sort(agentsA{m}.E, 'descend');
+                        u = agentsA{m}.u(agentsA{m}.E);
+                        [sortedValues sortIndex] = sort(u, 'descend');          
+                        topEx = agentsA{m}.E(sortIndex);
+                        for ex=1:min(length(topEx),100)
+                            id = topEx(ex);
+                            grid = agentsA{m}.d.grids(id);
+                            topGrids(1:3,:,i/1000,m,ex) = grid;
+                            topGrids(4,:,i/1000,m,ex) = [sortedValues(ex), agentsA{m}.v(id), agentsA{m}.exemplarGeneration(id)];
+                        end
+                    end
+                    
                     if(games{m}.diagnostics>0)
                         ag = agentsA{m};
                         gen = zeros(length(ag.E),1);
@@ -497,14 +513,13 @@ classdef Game < handle
                 avgResults{j} = sumResults{j}/iterations;
             end
  
-            [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = avgResults{1:9};
+            [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize topGrids] = avgResults{1:numVars};
             
             %call plotting functions
             blocks = length(nSchemas);
             Game.plotPoints4P(points, blocks)
             Game.plotExemplarTracking(4, exemplarTracking, blocks);
-            Game.plotUVOverTime(4, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize);
-            
+            Game.plotUVOverTime(4, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize); 
         end
         
         function plotUVOverTime(model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize)
