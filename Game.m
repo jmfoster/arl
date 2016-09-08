@@ -472,27 +472,50 @@ classdef Game < handle
             %disp('end evaluate() function')
         end
         
-        function plotExemplarTracking(agent, blocks)
+        
+        function analyzeResults(results)
+            %average over iterations
+            iterations = length(results);
+            numVars = length(results{1});
+            sumResults = results{1};
+            for iter = 2:iterations
+                for j = 1:numVars
+                    sumResults{j} = sumResults{j} + results{iter}{j};
+                end
+            end
+            avgResults = cell(numVars,1);
+            for j = 1:numVars
+                avgResults{j} = sumResults{j}/iterations;
+            end
+ 
+            [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = avgResults{1:9}
+            
+            
+        end
+        
+        function plotExemplarTracking(exemplarTracking, blocks, model)
+            
+            
             %plot exemplar tracking U Avg
             figure
             clf,hold on;
-            plot(mean(reshape(agent.exemplarTracking(5,1:blocks),10,blocks/10)), 'r--');
-            plot(mean(reshape(agent.exemplarTracking(6,1:blocks),10,blocks/10)), 'b-');
+            plot(mean(reshape(exemplarTracking(5, 1:blocks, model),10,blocks/10)), 'r--');
+            plot(mean(reshape(exemplarTracking(6, 1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:i),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking U Avg. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
+            title('Exemplar Tracking U Avg');
+            %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
-
-
 
 
             %plot exemplar tracking U Sum
             figure
             clf,hold on;
-            plot(mean(reshape(agent.exemplarTracking(1,1:blocks),10,blocks/10)), 'r--');
-            plot(mean(reshape(agent.exemplarTracking(2,1:blocks),10,blocks/10)), 'b-');
+            plot(mean(reshape(exemplarTracking(1,1:blocks, model),10,blocks/10)), 'r--');
+            plot(mean(reshape(exemplarTracking(2,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking U Sum. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
+            title('Exemplar Tracking U Sum');
+            %, num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
 
@@ -500,10 +523,11 @@ classdef Game < handle
             %plot exemplar tracking V Avg
             figure
             clf,hold on;
-            plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'r--');
-            plot(mean(reshape(agent.exemplarTracking(8,1:blocks),10,blocks/10)), 'b-');
+            plot(mean(reshape(exemplarTracking(7,1:blocks, model),10,blocks/10)), 'r--');
+            plot(mean(reshape(exemplarTracking(8,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking V Avg. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
+            title('Exemplar Tracking V Avg');
+            %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
 
@@ -511,15 +535,28 @@ classdef Game < handle
             %plot exemplar tracking V Sum
             figure
             clf,hold on;
-            plot(mean(reshape(agent.exemplarTracking(3,1:blocks),10,blocks/10)), 'r--');
-            plot(mean(reshape(agent.exemplarTracking(4,1:blocks),10,blocks/10)), 'b-');
+            plot(mean(reshape(exemplarTracking(3,1:blocks, model),10,blocks/10)), 'r--');
+            plot(mean(reshape(exemplarTracking(4,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking V Sum. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
+            title('Exemplar Tracking V Sum');
+            %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
-
-
-            
+   
+        end
+        
+        
+        function plotPoints4P(points, blocks)
+            figure;
+            clf, hold on;
+            blocksToPlot = blocks-mod(blocks,100);
+            rows = 10;
+            cols = blocksToPlot/10;
+            %Game.plotPoints(ag.points, blocksToPlot, rows, cols);
+            plot(mean(reshape(points(1,1:blocksToPlot),rows,cols)), 'k:')
+            plot(mean(reshape(points(2,1:blocksToPlot),rows,cols)), 'r--')
+            plot(mean(reshape(points(3,1:blocksToPlot),rows,cols)), 'b-')
+            plot(mean(reshape(points(4,1:blocksToPlot),rows,cols)), 'g')
         end
         
         function plotPoints3P(p1, p2, p3)

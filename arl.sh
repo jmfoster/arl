@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --ntasks 1
+#SBATCH --ntasks 40
 #SBATCH --output arl.out
-#SBATCH --qos janus
+#SBATCH --qos himem
 
 module load matlab
 module load slurm

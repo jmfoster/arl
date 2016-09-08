@@ -1,6 +1,6 @@
 blocks = 5000
-iterations = 12
-workers = 12
+iterations = 40
+workers = 40
 
 addpath('Cache')
 results = Game.main(blocks, iterations, workers)
