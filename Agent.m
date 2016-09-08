@@ -33,7 +33,7 @@ classdef Agent < handle
         gamma = 1; %for temporal discounting
         alpha_v = .1; %learning rate for v
         alpha_u = .1; %learning rate for u (w)
-        annealLearningRates = 1; %0 for no annealing
+        annealLearningRates = 0; %0 for no annealing
                                  %1 for annealing
         simType; %set by parameter passed to constructor. 
                  %1 for featural, 
@@ -453,28 +453,33 @@ classdef Agent < handle
                 if(ag.schemaInductionThreshold == -1) %yoke schema induction; might have to move this outside of ~isempty(ag.E) outer loop
                     %turn = length(ag.nSchemasByTurn)+1; %ag.nSchemasByTurn is used here to get # turns taken so far
                     turn = ag.turn;
-                    nRecruits = ag.nSchemasYoked(turn); %number of schemas that should be recruited on this turn
-                    if(ag.dbug && recruitSize>0)    %dbug
-                        nRecruits
-                    end
+                    block = length(ag.numExemplars)+1;
+                    %nRecruits = int32(ag.nSchemasYoked(block)/(10*5*2)); %number of schemas that should be recruited on this turn. divide # schemas induced in the block by 10 games by avg 5turns/game by 2 players
+                    %if(ag.dbug && recruitSize>0)    %dbug
+                    %    nRecruits
+                    %end
                     
                     %get subvector of sizes for nRecruits, located within nSchemasYokedSizes vector
-                    if(nRecruits==0)
-                        exemplarIDs = logical(zeros(1,length(ag.Eact))); %don't induce/recruit any schemas
+                    %if(nRecruits==0)
+                    %    exemplarIDs = logical(zeros(1,length(ag.Eact))); %don't induce/recruit any schemas
+                    %else
+                    %endPosition = sum(ag.nSchemasYoked(1:turn)); 
+                    %startPosition = endPosition-nRecruits+1; 
+                    %nSizes = ag.nSchemasYokedSizes(startPosition:endPosition);
+                    probSizes = ag.nSchemasYokedSizes{block}/(10*4.5); %10 games per block, 4.5 turns/block, 2 players?
+                    nSizes = find(rand(1,9)<probSizes);
+                    if(isempty(nSizes))
+                         exemplarIDs = logical(zeros(1,length(ag.Eact))); %don't induce/recruit any schemas
                     else
-                        %endPosition = sum(ag.nSchemasYoked(1:turn)); 
-                        %startPosition = endPosition-nRecruits+1; 
-                        %nSizes = ag.nSchemasYokedSizes(startPosition:endPosition);
-                        nSizes = ag.nSchemasYokedSizes{turn};
                         sims = ag.h(as1, ag.Eact); %similarities between target and bases, used as indicator of subsequent schema size
                         sizes = ag.d.reverseSimScores(sims);
                         %recruit schemas of sizes nSizes
                         exemplarIDs = logical(zeros(1,length(ag.Eact))); %initialize exemplarIDs
-                        if(length(nSizes) ~= ag.nSchemasYoked{turn}) %dbug
+                        %if(length(nSizes) ~= ag.nSchemasYoked{turn}) %dbug
                             %something's wrong
-                            length(nSizes)
-                            ag.nSchemasYoked{turn}
-                        end
+                        %    length(nSizes)
+                        %    ag.nSchemasYoked{turn}
+                        %end
                         for targetSize = nSizes
                             matches = find(sizes==targetSize);
                             if(isempty(matches)) %if no schema can be induced that would be the correct size, induce a random schema
@@ -484,16 +489,12 @@ classdef Agent < handle
                             end
                             exemplarIDs(match) = 1;
                         end
-                       
                     end
-                    
                     %randExemplarIDs = randperm(length(ag.E), recruitSize);
                     %%convert IDs into logical vector to be consistent with above
                     %exemplarIDs = false(1,length(ag.E));
                     %exemplarIDs(randExemplarIDs) = true;
-                    
-                    
-                    
+     
                 end
                 %cache bases and targets for later schema induction for above-threshold exemplars
                 %ag.base_cache = [ag.base_cache ag.E(exemplarIDs)];

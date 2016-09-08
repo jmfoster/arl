@@ -213,6 +213,7 @@ classdef Game < handle
                 parpool(numWorkers);
             end
             parfor(i=1:iterations, numWorkers)
+            %for(i=1:iterations)
                 disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
                 %g = Game;
                 %p0 = OptimalAgent(g.d);
@@ -221,7 +222,7 @@ classdef Game < handle
                 p0 = OptimalAgent(TicTacToe());
                 g1 = Game(p0);
                 g3 = Game(p0);
-                %g5 = Game();
+                g5 = Game(p0);
                 g7 = Game(p0);
                 g9 = Game(p0);
              
@@ -231,79 +232,37 @@ classdef Game < handle
                 %create symmetric players
                 p3 = Agent(g3.d, 2, recruitment, 0, 0);
                 p4 = Agent(g3.d, 2, recruitment, 0, 0);
-                %create schema induction players (no u learning)
+                %create guided schema induction players (no u learning)
                 p7 = Agent(g7.d, 2, recruitment, 1, 0);
                 p8 = Agent(g7.d, 2, recruitment, 1, 0);
                 p7.schemaInductionThreshold = 7;
                 p8.schemaInductionThreshold = 7;
-                %create schema indution players (with u learning)
+                %create guided schema indution players (with u learning)
                 p9 = Agent(g9.d, 2, recruitment, 1, 1);
                 p10 = Agent(g9.d, 2, recruitment, 1, 1);
                 p9.schemaInductionThreshold = 7;
                 p10.schemaInductionThreshold = 7;
-                agentsA = {p1, p3, p7, p9};
-                agentsB = {p2, p4, p8, p10};
-                games = {g1, g3, g7, g9};
                 
-               % p3b = Agent(g.d, 2, recruitment, 0);
-               % p4b = Agent(g.d, 2, recruitment, 0);
-    %                 %p3b.alpha_u=0;
-    %                 %p4b.alpha_u=0;
-    %                 %create endowed relational mode
-    %                 schema1 = [1 1 1; 3 3 3; 3 3 3];
-    %                 schema2 = [1 3 3; 3 1 3; 3 3 1];
-    %                 schema3 = [2 2 0; 3 3 3; 3 3 3];
-    %                 schema4 = [2 3 3; 3 2 3; 3 3 0];
-    %                 %schemas = [schema1 schema2 schema3 schema4];
-    %                 s1 = p3b.d.id(schema1);
-    %                 s2 = p3b.d.id(schema2);
-    %                 s3 = p3b.d.id(schema3);
-    %                 s4 = p3b.d.id(schema4);
-    %                 s1 = p4b.d.id(schema1);
-    %                 s2 = p4b.d.id(schema2);
-    %                 s3 = p4b.d.id(schema3);
-    %                 s4 = p4b.d.id(schema4);
-    %                 schemas = [s1 s2 s3 s4];
-    %                 p3b.applyCachedSchemas(schemas, zeros(1,length(schemas)),schemas,zeros(1,length(schemas)));
-    %                 p4b.applyCachedSchemas(schemas, zeros(1,length(schemas)),schemas,zeros(1,length(schemas)));
-    %                 
-                %create endowed schema players
-%                p5 = Agent(g.d, 3, recruitment, 0);
-%                p6 = Agent(g.d, 3, recruitment, 0);
-               
-%                 p9 = Agent(g3.d, 2, recruitment, 1);
-%                 p10 = Agent(g3.d, 2, recruitment, 1);
-%                 p9.schemaInductionThreshold = 6;
-%                 p10.schemaInductionThreshold = 6;
-%                 p9.macThreshold = 100;
-%                 p10.macThreshold = 100;
-%                 p11 = Agent(g5.d, 2, recruitment, 1);
-%                 p12 = Agent(g5.d, 2, recruitment, 1);
-%                 p11.schemaInductionThreshold = 6;
-%                 p12.schemaInductionThreshold = 6;
-%                 p11.macThreshold = 10000000;
-%                 p12.macThreshold = 10000000;
-                %yoked induction players
-                yoked = -1;
+                %create unguided schema inducion players (without u learning)
+                yoked = 1;
                 if(yoked==1)
-                    load('yoked1000.mat');
-                    p9 = Agent(Game.d, 2, recruitment, 1);
-                    p10 = Agent(Game.d, 2, recruitment, 1);
-                    p9.schemaInductionThreshold = -1;
-                    p10.schemaInductionThreshold = -1;
-                    %split guided model's schemas and schemaSizes vectors into even/odd vectors
-                    nSchemasByTurn = p7.nSchemasByTurn;
-                    nSchemasByTurnSizes = p7.nSchemasByTurnSizes;
-                    p9.nSchemasYoked = nSchemasByTurn(1:2:end); %odd elements
-                    p10.nSchemasYoked = nSchemasByTurn(2:2:end); %even elements
-                    p9.nSchemasYokedSizes = nSchemasByTurnSizes(1:2:end); %odd elements
-                    p10.nSchemasYokedSizes = nSchemasByTurnSizes(2:2:end); %even elements
-                    agentsA = {p9};
-                    agentsB = {p10};
-                elseif(yoked==0)
-                    agentsA = {p7};
-                    agentsB = {p8};
+                    loadedYoked = load('yoked5000.mat');
+                    sizesYoked = loadedYoked.sizesYoked;
+                    p5 = Agent(g5.d, 2, recruitment, 1, 0);
+                    p6 = Agent(g5.d, 2, recruitment, 1, 0);
+                    p5.schemaInductionThreshold = -1;
+                    p6.schemaInductionThreshold = -1;
+                    p5.nSchemasYokedSizes = sizesYoked; 
+                    p6.nSchemasYokedSizes = sizesYoked;
+                    agentsA = {p1, p3, p5, p7, p9};
+                    agentsB = {p2, p4, p6, p8, p10};
+                    games = {g1, g3, g5, g7, g9};
+                else
+                    agentsA = {p1, p3, p7, p9};
+                    agentsB = {p2, p4, p8, p10};
+                    games = {g1, g3, g7, g9};
                 end
+               
              
                 %agents{i} = agentsA;
                 for m=1:length(agentsA)
@@ -374,7 +333,7 @@ classdef Game < handle
             generationOverTimeBySize = NaN(length(agentsA),9,nBlocks);
             schemaStatsTables = cell(length(agentsA),nBlocks);
             exemplarTracking = zeros(8, nBlocks, length(agentsA));
-            topGrids = zeros(4,3,nBlocks/1000,length(agentsA),100);
+            topGrids = zeros(4,3,10,length(agentsA),100);
             
             for i=1:nBlocks
                 disp(strcat('Block: ', int2str(i), '/', int2str(nBlocks)));
@@ -417,7 +376,7 @@ classdef Game < handle
                     
                     for size=1:9
                         uOverTimeBySize(m,size,i) = mean(schemaUs(schemaSizes==size));
-                        vOverTimeBySize(m,size,i) = mean(schemaVs(schemaSizes==size));
+                        vOverTimeBySize(m,size,i) = mean(abs(schemaVs(schemaSizes==size)));
                         sizeCountsOverTime(m,size,i) = sum(schemaSizes==size);
                         generationOverTimeBySize(m,size,i) = mean(schemaGeneration(schemaSizes==size));
                     end
@@ -427,7 +386,7 @@ classdef Game < handle
                     agentsA{m}.generationOverTimeBySize = generationOverTimeBySize(m,:,:);
 
                     %top 100 exemplars over time
-                    if(mod(i,1000)==0)
+                    if(mod(i,nBlocks/10)==0)
                        % agentsA{m}.E = sort(agentsA{m}.E, 'descend');
                         u = agentsA{m}.u(agentsA{m}.E);
                         [sortedValues sortIndex] = sort(u, 'descend');          
@@ -435,8 +394,8 @@ classdef Game < handle
                         for ex=1:min(length(topEx),100)
                             id = topEx(ex);
                             grid = agentsA{m}.d.grids(id);
-                            topGrids(1:3,:,i/1000,m,ex) = grid;
-                            topGrids(4,:,i/1000,m,ex) = [sortedValues(ex), agentsA{m}.v(id), agentsA{m}.exemplarGeneration(id)];
+                            topGrids(1:3,:,i*10/nBlocks,m,ex) = grid;
+                            topGrids(4,:,i*10/nBlocks,m,ex) = [sortedValues(ex), agentsA{m}.v(id), agentsA{m}.exemplarGeneration(id)];
                         end
                     end
                     
@@ -497,7 +456,7 @@ classdef Game < handle
             end
         end
         
-        function analyzeResults(results)
+        function avgResults = analyzeResults(results)
   
             %average over iterations
             iterations = length(results);
@@ -513,34 +472,90 @@ classdef Game < handle
                 avgResults{j} = sumResults{j}/iterations;
             end
  
-            [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize topGrids] = avgResults{1:numVars};
+            if(numVars==9)
+                [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = avgResults{1:numVars};
+            elseif(numVars==10)
+                [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize topGrids] = avgResults{1:numVars};
+            end
+            
+            
             
             %call plotting functions
+            model = 4;
             blocks = length(nSchemas);
             Game.plotPoints4P(points, blocks)
-            Game.plotExemplarTracking(4, exemplarTracking, blocks);
-            Game.plotUVOverTime(4, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize); 
+            Game.plotExemplarTracking(model, exemplarTracking, blocks);
+            Game.plotUVOverTime(model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize); 
+%             Game.analyzeTopGrids(model,5,results{1}{10})
+        end
+        
+        function saveYoking(model, nSchemas, sizeCountsOverTime, blocks)
+            sizesYoked = cell(blocks,1);
+            sizesYoked{1} = sizeCountsOverTime(model,:,1)-zeros(1,9);
+            for i=1:blocks-1
+                increases = sizeCountsOverTime(model,:,i+1)-sizeCountsOverTime(model,:,i);
+                sizesYoked{i+1} = increases;
+            end
+            nSchemasYoked = nSchemas;
+            save(strcat('yoked',int2str(blocks),'.mat'),'sizesYoked');
+            
+            counts = zeros(100,1);
+            for copy=1:100
+                count = 0
+                for block = 1:blocks
+                   for game=1:10
+                       for turn = 1:9
+                           probSizes = sizesYoked{block}/(10*4.5*2); %10 games per block, 4.5 turns/block, 2 p
+                           nSizes = find(rand(1,9)<probSizes);
+                           count = count + sum(rand(1,9)<probSizes);
+                       end
+                   end
+                end
+                count
+                counts(copy) = count
+            end
+            mean(count)
+        end
+        
+        function analyzeTopGrids(model, round, topGridsI)
+            showNGrids = 10
+            tg = squeeze(topGridsI(:,:,round,model,1:showNGrids));
+            tgi = int8(tg(1:3,:,:));
+            tgp = repmat('b',[3,3,showNGrids]);
+            tgp(logical(tgi==3)) = '-';
+            tgp(logical(tgi==2)) = 'O';
+            tgp(logical(tgi==1)) = 'X';
+            tgp(logical(tgi==0)) = ' ';
+            
+            for i=1:showNGrids
+               disp(tgp(:,:,i))
+               u = tg(4,1,i)
+               v = tg(4,2,i)
+               generation = tg(4,3,i)
+               
+            end
+            
         end
         
         function plotUVOverTime(model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize)
             figure
             clf,hold on;
             plot(1:blocks, squeeze(uOverTimeBySize(model, :, 1:blocks)));
-            title('u Over Time By Size');
+            title(strcat('u Over Time By Size.', ' Blocks=', int2str(blocks)));
             legend('1','2','3','4','5','6','7','8','9')
             drawnow;
 
             figure
             clf,hold on;
             plot(1:blocks, squeeze(vOverTimeBySize(model, :, 1:blocks)));
-            title('v Over Time By Size');
+            title(strcat('v Over Time By Size.', ' Blocks=', int2str(blocks)));
             legend('1','2','3','4','5','6','7','8','9')
             drawnow;
             
             figure
             clf,hold on;
             plot(1:blocks, squeeze(sizeCountsOverTime(model, :, 1:blocks)));
-            title('Size Counts Over Time');
+            title(strcat('Size Counts Over Time.', ' Blocks=', int2str(blocks)));
             legend('1','2','3','4','5','6','7','8','9')
             drawnow;
         end
@@ -554,8 +569,7 @@ classdef Game < handle
             clf,hold on;
             plot(mean(reshape(exemplarTracking(5, 1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(6, 1:blocks, model),10,blocks/10)), 'b-');
-            %plot(mean(reshape(agent.exemplarTracking(7,1:i),10,blocks/10)), 'b-');
-            title('Exemplar Tracking U Avg');
+            title(strcat('Exemplar Tracking U Avg.', ' Blocks=', int2str(blocks)));;
             %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -567,7 +581,7 @@ classdef Game < handle
             plot(mean(reshape(exemplarTracking(1,1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(2,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title('Exemplar Tracking U Sum');
+            title(strcat('Exemplar Tracking U Sum.', ' Blocks=', int2str(blocks)));
             %, num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -579,7 +593,7 @@ classdef Game < handle
             plot(mean(reshape(exemplarTracking(7,1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(8,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title('Exemplar Tracking V Avg');
+            title(strcat('Exemplar Tracking V Avg.', ' Blocks=', int2str(blocks)));
             %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -591,7 +605,7 @@ classdef Game < handle
             plot(mean(reshape(exemplarTracking(3,1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(4,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title('Exemplar Tracking V Sum');
+            title(strcat('Exemplar Tracking V Sum.', ' Blocks=', int2str(blocks)));
             %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -606,11 +620,12 @@ classdef Game < handle
             rows = 10;
             cols = blocksToPlot/10;
             %Game.plotPoints(ag.points, blocksToPlot, rows, cols);
-            title('Points');
+            title(strcat('Points.', ' Blocks=', int2str(blocks)));
             plot(mean(reshape(points(1,1:blocksToPlot),rows,cols)), 'k:')
             plot(mean(reshape(points(2,1:blocksToPlot),rows,cols)), 'r--')
             plot(mean(reshape(points(3,1:blocksToPlot),rows,cols)), 'b-')
             plot(mean(reshape(points(4,1:blocksToPlot),rows,cols)), 'g')
+            axis([0 500 0 9])
         end
         
         function plotPoints3P(p1, p2, p3)

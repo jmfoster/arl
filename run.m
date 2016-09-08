@@ -1,4 +1,4 @@
-blocks = 10000
+blocks = 5000
 iterations = 40
 workers = 40
 
