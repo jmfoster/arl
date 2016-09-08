@@ -472,8 +472,17 @@ classdef Game < handle
             %disp('end evaluate() function')
         end
         
+        function results = loadResults(blocks, iterations)
+            results = cell(iterations,1);
+            for i=1:iterations
+                loadStr = strcat('autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations))
+                load(loadStr);
+                results{i} = resultsI;
+            end
+        end
         
         function analyzeResults(results)
+  
             %average over iterations
             iterations = length(results);
             numVars = length(results{1});
@@ -488,12 +497,41 @@ classdef Game < handle
                 avgResults{j} = sumResults{j}/iterations;
             end
  
-            [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = avgResults{1:9}
+            [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = avgResults{1:9};
             
+            %call plotting functions
+            blocks = length(nSchemas);
+            Game.plotPoints4P(points, blocks)
+            Game.plotExemplarTracking(4, exemplarTracking, blocks);
+            Game.plotUVOverTime(4, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize);
             
         end
         
-        function plotExemplarTracking(exemplarTracking, blocks, model)
+        function plotUVOverTime(model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize)
+            figure
+            clf,hold on;
+            plot(1:blocks, squeeze(uOverTimeBySize(model, :, 1:blocks)));
+            title('u Over Time By Size');
+            legend('1','2','3','4','5','6','7','8','9')
+            drawnow;
+
+            figure
+            clf,hold on;
+            plot(1:blocks, squeeze(vOverTimeBySize(model, :, 1:blocks)));
+            title('v Over Time By Size');
+            legend('1','2','3','4','5','6','7','8','9')
+            drawnow;
+            
+            figure
+            clf,hold on;
+            plot(1:blocks, squeeze(sizeCountsOverTime(model, :, 1:blocks)));
+            title('Size Counts Over Time');
+            legend('1','2','3','4','5','6','7','8','9')
+            drawnow;
+        end
+        
+        
+        function plotExemplarTracking(model, exemplarTracking, blocks)
             
             
             %plot exemplar tracking U Avg
@@ -553,6 +591,7 @@ classdef Game < handle
             rows = 10;
             cols = blocksToPlot/10;
             %Game.plotPoints(ag.points, blocksToPlot, rows, cols);
+            title('Points');
             plot(mean(reshape(points(1,1:blocksToPlot),rows,cols)), 'k:')
             plot(mean(reshape(points(2,1:blocksToPlot),rows,cols)), 'r--')
             plot(mean(reshape(points(3,1:blocksToPlot),rows,cols)), 'b-')
