@@ -456,6 +456,38 @@ classdef Game < handle
             end
         end
         
+        
+        
+        function plotPointsSEB(results)
+           %Examples
+            % y=randn(30,80); x=1:size(y,2);
+            % shadedErrorBar(x,mean(y,1),std(y),'g');
+            % shadedErrorBar(x,y,{@median,@std},{'r-o','markerfacecolor','r'});    
+            % shadedErrorBar([],y,{@median,@std},{'r-o','markerfacecolor','r'});  
+            blocks = size(results{1}{3},2);
+            cols = 100;
+            rows = blocks/cols;
+            iterations = length(results);
+            models = size(results{1}{3},1);
+            points = zeros(iterations, blocks, models);
+            pointsReshaped = zeros(iterations, cols, models);
+            for i = 1:iterations
+                for model = 1:models
+                    points(i,:,model) = results{i}{3}(model,:);
+                    pointsReshaped(i,:,model) = mean(reshape(points(i,:,model),rows,cols));
+                end
+            end
+            
+            figure
+            clf, hold on
+            colors = ['k','r','c','b','g'];
+            for model = 1:models
+                %pm = squeeze(points(:,:,model));
+                pm = squeeze(pointsReshaped(:,:,model));
+                shadedErrorBar(1:size(pm,2), mean(pm,1),std(pm),colors(model), 1);
+            end
+         end
+        
         function avgResults = analyzeResults(results)
             %average over iterations
             iterations = length(results);
