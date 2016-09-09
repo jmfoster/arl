@@ -449,7 +449,7 @@ classdef Game < handle
         
         function results = loadResults(blocks, iterations)
             results = cell(iterations,1);
-            for i=1:iterations
+            for i=1:25
                 loadStr = strcat('autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations))
                 load(loadStr);
                 results{i} = resultsI;
