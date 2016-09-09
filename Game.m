@@ -457,7 +457,6 @@ classdef Game < handle
         end
         
         function avgResults = analyzeResults(results)
-  
             %average over iterations
             iterations = length(results);
             numVars = length(results{1});
@@ -478,15 +477,16 @@ classdef Game < handle
                 [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize topGrids] = avgResults{1:numVars};
             end
             
-            
-            
             %call plotting functions
-            model = 4;
-            blocks = length(nSchemas);
-            Game.plotPoints4P(points, blocks)
-            Game.plotExemplarTracking(model, exemplarTracking, blocks);
-            Game.plotUVOverTime(model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize); 
+%             model = 5;
+%             m1 = 3;
+%             m2 = 4;
+%             blocks = length(nSchemas);
+%             Game.plotPoints5P(points, blocks)
+%             Game.plotExemplarTracking(model, exemplarTracking, blocks);
+%             Game.plotUVOverTime(model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize); 
 %             Game.analyzeTopGrids(model,5,results{1}{10})
+%             Game.compareModels(avgResults, m1, m2)
         end
         
         function saveYoking(model, nSchemas, sizeCountsOverTime, blocks)
@@ -541,21 +541,21 @@ classdef Game < handle
             figure
             clf,hold on;
             plot(1:blocks, squeeze(uOverTimeBySize(model, :, 1:blocks)));
-            title(strcat('u Over Time By Size.', ' Blocks=', int2str(blocks)));
+            title(strcat('u Over Time By Size.','Model= ',int2str(model), 'Blocks=', int2str(blocks)));
             legend('1','2','3','4','5','6','7','8','9')
             drawnow;
 
             figure
             clf,hold on;
             plot(1:blocks, squeeze(vOverTimeBySize(model, :, 1:blocks)));
-            title(strcat('v Over Time By Size.', ' Blocks=', int2str(blocks)));
+            title(strcat('v Over Time By Size.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
             legend('1','2','3','4','5','6','7','8','9')
             drawnow;
             
             figure
             clf,hold on;
             plot(1:blocks, squeeze(sizeCountsOverTime(model, :, 1:blocks)));
-            title(strcat('Size Counts Over Time.', ' Blocks=', int2str(blocks)));
+            title(strcat('Size Counts Over Time.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
             legend('1','2','3','4','5','6','7','8','9')
             drawnow;
         end
@@ -569,7 +569,7 @@ classdef Game < handle
             clf,hold on;
             plot(mean(reshape(exemplarTracking(5, 1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(6, 1:blocks, model),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking U Avg.', ' Blocks=', int2str(blocks)));;
+            title(strcat('Exemplar Tracking U Avg.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));;
             %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -581,7 +581,7 @@ classdef Game < handle
             plot(mean(reshape(exemplarTracking(1,1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(2,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking U Sum.', ' Blocks=', int2str(blocks)));
+            title(strcat('Exemplar Tracking U Sum.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
             %, num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -593,7 +593,7 @@ classdef Game < handle
             plot(mean(reshape(exemplarTracking(7,1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(8,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking V Avg.', ' Blocks=', int2str(blocks)));
+            title(strcat('Exemplar Tracking V Avg.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
             %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -605,7 +605,7 @@ classdef Game < handle
             plot(mean(reshape(exemplarTracking(3,1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(4,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking V Sum.', ' Blocks=', int2str(blocks)));
+            title(strcat('Exemplar Tracking V Sum.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
             %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -613,19 +613,70 @@ classdef Game < handle
         end
         
         
-        function plotPoints4P(points, blocks)
+        function plotPoints5P(points, blocks)
+%             figure;
+%             clf, hold on;
+%             blocksToPlot = blocks-mod(blocks,100);
+%             rows = 10;
+%             cols = blocksToPlot/10;
+%             %Game.plotPoints(ag.points, blocksToPlot, rows, cols);
+%             title(strcat('Points.', ' Blocks=', int2str(blocks)));
+%             plot(mean(reshape(points(1,1:blocksToPlot),rows,cols)), 'k:')
+%             plot(mean(reshape(points(2,1:blocksToPlot),rows,cols)), 'r--')
+%             plot(mean(reshape(points(3,1:blocksToPlot),rows,cols)), 'c-')
+%             plot(mean(reshape(points(4,1:blocksToPlot),rows,cols)), 'b-')
+%             plot(mean(reshape(points(5,1:blocksToPlot),rows,cols)), 'g')
+%             figure
+%             clf, hold on;
+%             title('Points Raw');
+%             plot(points(1,:), 'k:')
+%             plot(points(2,:), 'r--')
+%             plot(points(3,:), 'c-')
+%             plot(points(4,:), 'b-')
+%             plot(points(5,:), 'g')
+%             %axis([0 500 0 9])
+%             
+            rows = 50;
+            cols = blocks/rows;
             figure;
-            clf, hold on;
-            blocksToPlot = blocks-mod(blocks,100);
-            rows = 10;
-            cols = blocksToPlot/10;
-            %Game.plotPoints(ag.points, blocksToPlot, rows, cols);
-            title(strcat('Points.', ' Blocks=', int2str(blocks)));
-            plot(mean(reshape(points(1,1:blocksToPlot),rows,cols)), 'k:')
-            plot(mean(reshape(points(2,1:blocksToPlot),rows,cols)), 'r--')
-            plot(mean(reshape(points(3,1:blocksToPlot),rows,cols)), 'b-')
-            plot(mean(reshape(points(4,1:blocksToPlot),rows,cols)), 'g')
-            axis([0 500 0 9])
+            clf,hold on
+            if(size(points,1)==5)
+                plot(1:rows:blocks,mean(reshape(points(5,1:blocks),rows,cols)),'g-', 'LineWidth', 4)
+            end
+            if(size(points, 1)>=4)
+                plot(1:rows:blocks,mean(reshape(points(4,1:blocks),rows,cols)), 'b-', 'LineWidth', 4)
+            end
+            if(size(points, 1)>=3)
+                plot(1:rows:blocks,mean(reshape(points(3,1:blocks),rows,cols)), 'c-', 'LineWidth', 4)
+            end
+            plot(1:rows:blocks,mean(reshape(points(2,1:blocks),rows,cols)), 'r--', 'LineWidth', 4)
+            plot(1:rows:blocks,mean(reshape(points(1,1:blocks),rows,cols)), 'k:', 'LineWidth', 4)
+            set(gca, 'FontSize', 14)
+            xlabel('Training Games', 'FontSize', 18)
+            ylabel('Points', 'FontSize', 18)
+            title('Averaged Learning Curves', 'FontSize', 20)
+            legend('Guided Schema Induction Learned U','Guided Schema Induction Fixed U', 'Unguided Schema Induction Fixed U', 'Relational Model', 'Featural Model', 'FontSize', 18)
+            axis([0 blocks 0 9])
+          
+        end
+        
+        function compareModels(avgResults, m1, m2)
+            m1 = 3
+            m2 = 4
+            
+            if(numVars==9)
+                [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = avgResults{1:numVars};
+            elseif(numVars==10)
+                [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize topGrids] = avgResults{1:numVars};
+            end
+            
+            blocks = size(points,2);
+            %is schema yoking working correctly?
+            figure
+            clf, hold on
+            plot(1:blocks,nSchemas(m1,:), 'r')
+            plot(1:blocks,nSchemas(m2,:), 'b')
+            plot(1:blocks,nSchemas1(3,:), 'k')
         end
         
         function plotPoints3P(p1, p2, p3)
