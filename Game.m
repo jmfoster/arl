@@ -195,7 +195,7 @@ classdef Game < handle
         %git reset --hard origin/master
         
  
-        function results = main(blocks, iterations, numWorkers)
+        function results = main(blocks, iterations, numWorkers, runID)
             %% main function
             %blocks = 10;
             %agents = cell(iterations);
@@ -297,7 +297,7 @@ classdef Game < handle
             time = toc(ticID)
             
             for i = 1:iterations
-                saveStr = strcat('autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations))
+                saveStr = strcat(int2str(runID), '_autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations))
                 disp('saving results file')
                 disp(saveStr)
                 %scoresI = scores{i};
