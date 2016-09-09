@@ -212,7 +212,7 @@ classdef Game < handle
             if(numWorkers>0)
                 parpool(numWorkers);
             end
-            parfor(i=1:iterations, numWorkers)
+            parfor(i=1:iterations, numWorkers) 
             %for(i=1:iterations)
                 disp(strcat('Iteration: ', int2str(i), '/', int2str(iterations)));
                 %g = Game;
