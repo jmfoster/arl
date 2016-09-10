@@ -292,7 +292,7 @@ classdef Game < handle
                 %disp('about to end parfor')
             end
             %disp('end parfor')
-            delete(gcp('nocreate'))
+            %delete(gcp('nocreate'))
             %disp('shut down parallel pool')
             time = toc(ticID)
             
