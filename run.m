@@ -1,4 +1,4 @@
-blocks = 5000
+blocks = 100
 iterations = 32
 workers = 32
 runID = 7
