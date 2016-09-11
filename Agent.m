@@ -466,7 +466,7 @@ classdef Agent < handle
                     %endPosition = sum(ag.nSchemasYoked(1:turn)); 
                     %startPosition = endPosition-nRecruits+1; 
                     %nSizes = ag.nSchemasYokedSizes(startPosition:endPosition);
-                    probSizes = ag.nSchemasYokedSizes{block}/(10*4.5); %10 games per block, 4.5 turns/block, 2 players?
+                    probSizes = ag.nSchemasYokedSizes{block}/(10*4); %10 games per block, 4.5 turns/block, 2 players?
                     nSizes = find(rand(1,9)<probSizes);
                     if(isempty(nSizes))
                          exemplarIDs = logical(zeros(1,length(ag.Eact))); %don't induce/recruit any schemas
