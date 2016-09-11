@@ -447,10 +447,10 @@ classdef Game < handle
             %disp('end evaluate() function')
         end
         
-        function results = loadResults(blocks, iterations)
+        function results = loadResults(run, blocks, iterations)
             results = cell(iterations,1);
-            for i=1:25
-                loadStr = strcat('autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations))
+            for i=1:iterations
+                loadStr = strcat(int2str(run), '_autosave_results_blocks=', int2str(blocks), '_iteration=', int2str(i),'of',int2str(iterations))
                 load(loadStr);
                 results{i} = resultsI;
             end
@@ -488,7 +488,7 @@ classdef Game < handle
             end
          end
         
-        function avgResults = analyzeResults(results)
+        function avgResults = analyzeResults(results, plot)
             %average over iterations
             iterations = length(results);
             numVars = length(results{1});
@@ -509,16 +509,19 @@ classdef Game < handle
                 [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize topGrids] = avgResults{1:numVars};
             end
             
+            if(plot==1)
             %call plotting functions
-%             model = 5;
-%             m1 = 3;
-%             m2 = 4;
-%             blocks = length(nSchemas);
-%             Game.plotPoints5P(points, blocks)
-%             Game.plotExemplarTracking(model, exemplarTracking, blocks);
-%             Game.plotUVOverTime(model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize); 
-%             Game.analyzeTopGrids(model,5,results{1}{10})
-%             Game.compareModels(avgResults, m1, m2)
+            model = 5;
+            m1 = 3;
+            m2 = 4;
+            blocks = length(nSchemas);
+            Game.plotPointsSEB(results)
+            Game.plotPoints5P(points, blocks)
+            Game.plotExemplarTracking(model, exemplarTracking, blocks);
+            Game.plotUVOverTime(model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize); 
+            Game.analyzeTopGrids(model,5,results{1}{10})
+            Game.compareModels(avgResults, m1, m2)
+            end
         end
         
         function saveYoking(model, nSchemas, sizeCountsOverTime, blocks)
@@ -693,9 +696,9 @@ classdef Game < handle
         end
         
         function compareModels(avgResults, m1, m2)
-            m1 = 3
-            m2 = 4
-            
+            %m1 = 3
+            %m2 = 4
+            numVars = length(avgResults);
             if(numVars==9)
                 [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = avgResults{1:numVars};
             elseif(numVars==10)
