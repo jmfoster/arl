@@ -1,6 +1,6 @@
 blocks = 100
-iterations = 32
-workers = 32
+iterations = 25
+workers = 25
 runID = 7
 
 addpath('Cache')

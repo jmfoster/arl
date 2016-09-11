@@ -482,17 +482,12 @@ classdef Agent < handle
                         %end
                         for targetSize = nSizes
                             matches = find(sizes==targetSize);
-                            schema = -1;
-                            while(schema==-1 || ismember(schema, ag.E) || ismember(schema, ag.schema_cache)) %disallow repeats
-                                if(isempty(matches)) %if no schema can be induced that would be the correct size, induce a random schema
-                                    match = randi(numel(exemplarIDs));
-                                else
-                                    match = matches(randi(numel(matches))); %randomly choose from the exemplars of the correct size
-                                end
-                                exemplarIDs(match) = 1;
-                                %schema = ag.Eact(match)
-                                schema = ag.d.induceSchema(as1, ag.Eact(match)); %hack to allow checks for repeat schemas in yoked model
+                            if(isempty(matches)) %if no schema can be induced that would be the correct size, induce a random schema
+                                match = randi(numel(exemplarIDs));
+                            else
+                                match = matches(randi(numel(matches))); %randomly choose from the exemplars of the correct size
                             end
+                            exemplarIDs(match) = 1;
                         end
                     end
                     %randExemplarIDs = randperm(length(ag.E), recruitSize);
