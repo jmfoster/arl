@@ -51,7 +51,7 @@ classdef Agent < handle
                          %1 recruit every exemplar
                          %2 recruit probabilistically p(recruitment) = 1/#exemplars
                          %3 recruit with constant probability (1/2)
-                         %4 recruit with probability 1/(#exemplars)^2
+                         %4 recruit with probability 1/(10 * #exemplars)
         nExemplars = 0;  %max number of exemplars model will use
                           %0 means no limit
         normalizeActivation = 0; %0 don't normalize exemplar similarity over the state space
@@ -206,7 +206,7 @@ classdef Agent < handle
                         ag.cacheExemplar(as1_soft, V1_tilde_soft); 
                     end
                 elseif(ag.recruitType==4)
-                    p = 1/(sum(ag.E<=5477)^2); %probability of recruitment is 1/(#stateExemplars)^2
+                    p = 1/(sum(ag.E<=5477)*10); %probability of recruitment is 1/(#stateExemplars*10)
                     if(rand<p)
                         ag.cacheExemplar(as1_soft, V1_tilde_soft);
                     end
