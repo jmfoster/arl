@@ -2,7 +2,7 @@
 
 #SBATCH --nodes 1
 #SBATCH --ntasks 32
-#SBATCH --output arl11.out
+#SBATCH --output arl12.out
 #SBATCH --qos himem
 
 module load matlab
