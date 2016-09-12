@@ -31,8 +31,8 @@ classdef Agent < handle
         %parameters
         temperature = 1; %for softmax action selection
         gamma = 1; %for temporal discounting
-        alpha_v = .1; %learning rate for v
-        alpha_u = .1; %learning rate for u (w)
+        alpha_v = 1; %learning rate for v
+        alpha_u = 1; %learning rate for u (w)
         annealLearningRates = 0; %0 for no annealing
                                  %1 for annealing
         simType; %set by parameter passed to constructor. 

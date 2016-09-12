@@ -465,7 +465,7 @@ classdef Game < handle
             % shadedErrorBar(x,y,{@median,@std},{'r-o','markerfacecolor','r'});    
             % shadedErrorBar([],y,{@median,@std},{'r-o','markerfacecolor','r'});  
             blocks = size(results{1}{3},2);
-            cols = 100;
+            cols = 50;
             rows = blocks/cols;
             iterations = length(results);
             models = size(results{1}{3},1);
@@ -481,11 +481,23 @@ classdef Game < handle
             figure
             clf, hold on
             colors = ['k','r','c','b','g'];
+            modelNames = {'Featural Model','Relational Model','Unguided Schema Induction Fixed U','Guided Schema Induction Fixed U','Guided Schema Induction Learned U'};
+            
             for model = 1:models
                 %pm = squeeze(points(:,:,model));
                 pm = squeeze(pointsReshaped(:,:,model));
-                shadedErrorBar(1:size(pm,2), mean(pm,1),std(pm)/sqrt(iterations),colors(model), 1);
+                h = shadedErrorBar(1:size(pm,2), mean(pm,1),std(pm)/sqrt(iterations),colors(model), 1);
+                h.mainLine.DisplayName = modelNames{model};
             end
+            
+            set(gca, 'FontSize', 18)
+            xlabel('Training Games', 'FontSize', 18)
+            ylabel('Points', 'FontSize', 18)
+            title('Averaged Learning Curves', 'FontSize', 20)
+            legend(findobj(gca, '-regexp', 'DisplayName', '[^'']'));    
+ 
+            %legend('Guided Schema Induction Learned U','Guided Schema Induction Fixed U', 'Unguided Schema Induction Fixed U', 'Relational Model', 'Featural Model')
+            %axis([0 2000 0 9])
          end
         
         function avgResults = analyzeResults(results, plot)
