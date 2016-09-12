@@ -484,7 +484,7 @@ classdef Game < handle
             for model = 1:models
                 %pm = squeeze(points(:,:,model));
                 pm = squeeze(pointsReshaped(:,:,model));
-                shadedErrorBar(1:size(pm,2), mean(pm,1),std(pm),colors(model), 1);
+                shadedErrorBar(1:size(pm,2), mean(pm,1),std(pm)/sqrt(iterations),colors(model), 1);
             end
          end
         
