@@ -114,11 +114,11 @@ classdef Agent < handle
             ag.u = ones(ag.nValues, 1);
             ag.u_cache = zeros(ag.nValues, 1);
             ag.z = zeros(ag.nValues, 1);
-            ag.stateVisits = zeros(ag.nValues, 1);
+            ag.stateVisits = zeros(ag.nValues, 1, 'uint32');
             %ag.exemplarGeneration = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
-            ag.exemplarGeneration = zeros(ag.nValues, 1);
+            ag.exemplarGeneration = zeros(ag.nValues, 1, 'uint32');
             ag.uLearning = uLearning;
-            ag.exemplarSizes = zeros(ag.nValues, 1)+9; %initialize sizes of true exemplars to 9
+            ag.exemplarSizes = zeros(ag.nValues, 1, 'uint8')+9; %initialize sizes of true exemplars to 9
     
 
             %the tradeoff between those thresholds makes sense.  if you want induction rate to be roughly 
@@ -550,14 +550,14 @@ classdef Agent < handle
         
         function expandRepresentation(ag, schemas, schema_values)
              pad = 0;
-             schemaList = []; %schemaList is just being used to check for duplicates, may be faster way
+             schemaList = zeros(length(schemas)); %schemaList is just being used to check for duplicates, may be faster way
              for i = 1:length(schemas)
                 schema = schemas(i);
                 schema_value = schema_values(i);
                 if(ag.nValues<schema && ~ismember(schema, schemaList)) %schema is new (not in v, v_cache, h, or nValues)
                     pad = pad+1;
                 end
-                schemaList = [schemaList schema];
+                schemaList(i) = schema;
              end
              
             %pad v, v_cache, u, u_cache, and h
@@ -625,8 +625,8 @@ classdef Agent < handle
             
             %build list of schemas which extend v and v_cache
             %so that h can be extended/padded in blocks
-            schemas = [];
-            schemaValues = [];
+            schemas = zeros(length(bases),'uint32');
+            schemaValues = zeros(length(bases),'uint32');
             for i = 1:length(bases)
                 base = bases(i);
                 target = targets(i);
@@ -636,8 +636,8 @@ classdef Agent < handle
                 schema_value = baseValue;   %how to best initialize internal value of schema?
                 
                 %add schema to schemas and value to values
-                schemas = [schemas schema];
-                schemaValues = [schemaValues schema_value];
+                schemas(i) = schema;
+                schemaValues(i) = schema_value;
             end
             
          
