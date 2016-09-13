@@ -201,7 +201,7 @@ classdef Game < handle
             %agents = cell(iterations);
             prepopulate = 0;    %0 for no prepopulation, 1 for prepopulation
             prepopSize = 100;
-            recruitment = 2;   %0 for no recruitment, 1 for recruit all, 2 for probablistic recruitment
+            recruitment = 4;   %0 for no recruitment, 1 for recruit all, 2 for probablistic recruitment
             trainingRounds = 10; %numGames is 1 x trainingRounds (but self-play so model sees each game from both sides)
             testingRounds = 1; %numGames is 2 x testingRounds
             %scores = cell(iterations);
@@ -235,13 +235,13 @@ classdef Game < handle
                 %create guided schema induction players (no u learning)
                 p7 = Agent(g7.d, 2, recruitment, 1, 0);
                 p8 = Agent(g7.d, 2, recruitment, 1, 0);
-                p7.schemaInductionThreshold = 7;
-                p8.schemaInductionThreshold = 7;
+                p7.schemaInductionThreshold = 5;
+                p8.schemaInductionThreshold = 5;
                 %create guided schema indution players (with u learning)
                 p9 = Agent(g9.d, 2, recruitment, 1, 1);
                 p10 = Agent(g9.d, 2, recruitment, 1, 1);
-                p9.schemaInductionThreshold = 7;
-                p10.schemaInductionThreshold = 7;
+                p9.schemaInductionThreshold = 5;
+                p10.schemaInductionThreshold = 5;
                 
                 %create unguided schema inducion players (without u learning)
                 yoked = 1;
@@ -326,7 +326,7 @@ classdef Game < handle
             %diffs = zeros(length(agentsA), nBlocks); %model types x blocks
             props = NaN;
             diffs = NaN;
-            sampleReduction = 10; %factor used to reduce storage of tracked variables
+            sampleReduction = 1; %factor used to reduce storage of tracked variables
             samples = nBlocks/sampleReduction;
             points = zeros(length(agentsA), samples, 'uint8'); %model types x blocks
             nSchemas = zeros(length(agentsA), samples, 'uint16'); %model types x blocks
