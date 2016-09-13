@@ -354,7 +354,7 @@ classdef Game < handle
                     
                     if(mod(i,sampleReduction)==0) %reduce sampling of all these values
                         if(m==1) %only display iteration for one of the agents
-                            disp(strcat('Block: ', int2str(i), '/', int2str(nBlocks)));
+                            %disp(strcat('Block: ', int2str(i), '/', int2str(nBlocks)));
                         end
                         
                         sampleIndex = i/sampleReduction;
@@ -425,7 +425,8 @@ classdef Game < handle
                     end
                 end
                 
-                if(mod(i,sampleReduction)==0)
+                if(mod(i,sampleReduction*10)==0)
+                    disp(strcat('Block: ', int2str(i), '/', int2str(nBlocks)));
                     %props(:,:,i)
                     latestPoints = points(:,max(1,sampleIndex-9):sampleIndex) %output points
                     latestNSchemas = nSchemas(:,max(1,sampleIndex-9):sampleIndex) %output nSchemas
@@ -737,7 +738,6 @@ classdef Game < handle
             clf, hold on
             plot(1:blocks,nSchemas(m1,:), 'r')
             plot(1:blocks,nSchemas(m2,:), 'b')
-            plot(1:blocks,nSchemas1(3,:), 'k')
         end
         
         function plotPoints3P(p1, p2, p3)
