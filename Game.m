@@ -201,7 +201,7 @@ classdef Game < handle
             %agents = cell(iterations);
             prepopulate = 0;    %0 for no prepopulation, 1 for prepopulation
             prepopSize = 100;
-            recruitment = 4;   %0 for no recruitment, 1 for recruit all, 2 for probablistic recruitment
+            recruitment = 2;   %0 for no recruitment, 1 for recruit all, 2 for probablistic recruitment
             trainingRounds = 10; %numGames is 1 x trainingRounds (but self-play so model sees each game from both sides)
             testingRounds = 1; %numGames is 2 x testingRounds
             %scores = cell(iterations);
