@@ -480,7 +480,7 @@ classdef Game < handle
             % shadedErrorBar(x,y,{@median,@std},{'r-o','markerfacecolor','r'});    
             % shadedErrorBar([],y,{@median,@std},{'r-o','markerfacecolor','r'});  
             blocks = size(results{1}{3},2);
-            cols = 50;
+            cols = 10;
             rows = blocks/cols;
             iterations = length(results);
             models = size(results{1}{3},1);
