@@ -201,7 +201,7 @@ classdef Game < handle
             %agents = cell(iterations);
             prepopulate = 0;    %0 for no prepopulation, 1 for prepopulation
             prepopSize = 100;
-            recruitment = 2;   %0 for no recruitment, 1 for recruit all, 2 for probablistic recruitment
+            recruitment = 4;   %0 for no recruitment, 1 for recruit all, 2 for probablistic recruitment
             trainingRounds = 10; %numGames is 1 x trainingRounds (but self-play so model sees each game from both sides)
             testingRounds = 1; %numGames is 2 x testingRounds
             %scores = cell(iterations);
@@ -235,13 +235,13 @@ classdef Game < handle
                 %create guided schema induction players (no u learning)
                 p7 = Agent(g7.d, 2, recruitment, 1, 0);
                 p8 = Agent(g7.d, 2, recruitment, 1, 0);
-                p7.schemaInductionThreshold = 5;
-                p8.schemaInductionThreshold = 5;
+                p7.schemaInductionThreshold = 6;
+                p8.schemaInductionThreshold = 6;
                 %create guided schema indution players (with u learning)
                 p9 = Agent(g9.d, 2, recruitment, 1, 1);
                 p10 = Agent(g9.d, 2, recruitment, 1, 1);
-                p9.schemaInductionThreshold = 5;
-                p10.schemaInductionThreshold = 5;
+                p9.schemaInductionThreshold = 6;
+                p10.schemaInductionThreshold = 6;
                 
                 %create unguided schema inducion players (without u learning)
                 yoked = 1;
@@ -523,6 +523,7 @@ classdef Game < handle
             for iter = 2:iterations
                 for j = 1:numVars
                     sumResults{j} = sumResults{j} + results{iter}{j};
+                    
                 end
             end
             avgResults = cell(numVars,1);
@@ -530,10 +531,25 @@ classdef Game < handle
                 avgResults{j} = sumResults{j}/iterations;
             end
  
+            
+            catResults = results{1};
+            for iter = 2:iterations
+                for j = 1:numVars
+                    dims = length(size(results{1}{j}));
+                    catResults{j} = cat(dims+1,catResults{j},results{iter}{j});
+                end
+            end
+            
+            meanResults = {};
+            for j = 1:numVars
+                dims = length(size(catResults{j}));
+                meanResults{j} = nanmean(catResults{j}, dims);
+            end
+            
             if(numVars==9)
-                [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = avgResults{1:numVars};
+                [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = meanResults{1:numVars};
             elseif(numVars==10)
-                [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize topGrids] = avgResults{1:numVars};
+                [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize topGrids] = meanResults{1:numVars};
             end
             
             if(plot==1)
