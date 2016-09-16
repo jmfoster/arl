@@ -246,7 +246,7 @@ classdef Game < handle
                 %create unguided schema inducion players (without u learning)
                 yoked = 1;
                 if(yoked==1)
-                    loadedYoked = load('yoked5000.mat');
+                    loadedYoked = load('r22yoked5000.mat');
                     sizesYoked = loadedYoked.sizesYoked;
                     p5 = Agent(g5.d, 2, recruitment, 1, 0);
                     p6 = Agent(g5.d, 2, recruitment, 1, 0);
@@ -578,7 +578,7 @@ classdef Game < handle
                 sizesYoked{i+1} = increases;
             end
             nSchemasYoked = nSchemas;
-            save(strcat('yoked',int2str(blocks),'.mat'),'sizesYoked');
+            save(strcat('r22yoked',int2str(blocks),'.mat'),'sizesYoked');
             
             counts = zeros(100,1);
             for copy=1:100
