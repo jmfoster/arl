@@ -479,6 +479,7 @@ classdef Game < handle
             % shadedErrorBar(x,mean(y,1),std(y),'g');
             % shadedErrorBar(x,y,{@median,@std},{'r-o','markerfacecolor','r'});    
             % shadedErrorBar([],y,{@median,@std},{'r-o','markerfacecolor','r'});  
+            resultsArgumentName = inputname(1);
             blocks = size(results{1}{3},2);
             cols = 10;
             rows = blocks/cols;
@@ -508,7 +509,7 @@ classdef Game < handle
             set(gca, 'FontSize', 18)
             xlabel('Training Games', 'FontSize', 18)
             ylabel('Points', 'FontSize', 18)
-            title('Averaged Learning Curves', 'FontSize', 20)
+            title(strcat(resultsArgumentName, ' Averaged Learning Curves'), 'FontSize', 20)
             legend(findobj(gca, '-regexp', 'DisplayName', '[^'']'));    
  
             %legend('Guided Schema Induction Learned U','Guided Schema Induction Fixed U', 'Unguided Schema Induction Fixed U', 'Relational Model', 'Featural Model')
@@ -517,6 +518,8 @@ classdef Game < handle
         
         function avgResults = analyzeResults(results, plot)
             %average over iterations
+            resultsArgumentName = inputname(1);
+            
             iterations = length(results);
             numVars = length(results{1});
             sumResults = results{1};
@@ -526,7 +529,7 @@ classdef Game < handle
                     
                 end
             end
-            avgResults = cell(numVars,1);
+            avgResults = cell(numVars,1);   %average where NaN's make that position's average NaN
             for j = 1:numVars
                 avgResults{j} = sumResults{j}/iterations;
             end
@@ -540,7 +543,7 @@ classdef Game < handle
                 end
             end
             
-            meanResults = {};
+            meanResults = {};  %mean excluding NaNs
             for j = 1:numVars
                 dims = length(size(catResults{j}));
                 meanResults{j} = nanmean(catResults{j}, dims);
@@ -559,11 +562,11 @@ classdef Game < handle
             m2 = 4;
             blocks = length(nSchemas);
             Game.plotPointsSEB(results)
-            Game.plotPoints5P(points, blocks)
-            Game.plotExemplarTracking(model, exemplarTracking, blocks);
-            Game.plotUVOverTime(model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize); 
-            Game.analyzeTopGrids(model,5,results{1}{10})
-            Game.compareModels(avgResults, m1, m2)
+            %Game.plotPoints5P(resultsArgumentName, points, blocks)
+            Game.plotExemplarTracking(resultsArgumentName, model, exemplarTracking, blocks);
+            Game.plotUVOverTime(resultsArgumentName, model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize); 
+            Game.analyzeTopGrids(resultsArgumentName, model,5,results)
+            Game.compareModels(resultsArgumentName, avgResults, m1, m2)
             end
         end
         
@@ -595,51 +598,148 @@ classdef Game < handle
             mean(count)
         end
         
-        function analyzeTopGrids(model, round, topGridsI)
-            showNGrids = 10
-            tg = squeeze(topGridsI(:,:,round,model,1:showNGrids));
-            tgi = int8(tg(1:3,:,:));
+        function analyzeTopGrids(resultsArgumentName, model, round, results)
+            showNGrids = 100;
+            iter = 1; 
+%             
+%             topGridsI = results{iter}{10};
+%             tg = squeeze(topGridsI(:,:,round,model,1:showNGrids));
+%             tgi = int8(tg(1:3,:,:));
+%             tgp = repmat('b',[3,3,showNGrids]);
+%             tgp(logical(tgi==3)) = '-';
+%             tgp(logical(tgi==2)) = 'O';
+%             tgp(logical(tgi==1)) = 'X';
+%             tgp(logical(tgi==0)) = ' ';
+%             
+%             for i=1:showNGrids
+%                disp(tgp(:,:,i))
+%                u = tg(4,1,i)
+%                v = tg(4,2,i)
+%                generation = tg(4,3,i)
+%                
+%             end
+            
+            
+            %find intersection of topGrids across all iterations (instead
+            %of just looking at a single arbitrary iteration (clone) of the agent
+            %craay craay nested loops
+            %commonTopGrids = zeros(4,3,showNGrids);
+            ctgi = 1;
+            %gridFound = false;
+            topGridsC = squeeze(results{1}{10}(:,:,round,model,1:showNGrids));
+            uCSums = zeros(showNGrids,1);
+            vCSums = zeros(showNGrids,1);
+            generationCSums = zeros(showNGrids,1);
+            numIterGridsFound = zeros(showNGrids,1)+1;
+            for i=2:length(results)
+                topGridsI = squeeze(results{i}{10}(:,:,round,model,1:showNGrids));
+                for gc=1:showNGrids
+                    gridFound = false;
+                    gridC = uint8(topGridsC(1:3,1:3,gc));
+                    uC = topGridsC(4,1,gc);
+                    vC = topGridsC(4,2,gc);
+                    generationJ = topGridsC(4,3,gc);
+                    for gi=1:showNGrids
+                        gridI = uint8(topGridsI(1:3,1:3,gi));
+                        uI = topGridsI(4,1,gi);
+                        vI = topGridsI(4,2,gi);
+                        generationI = topGridsI(4,3,gi);
+                        
+                        %should maybe check for symmetry here
+                        %ttt = TicTacToe()
+                        if(isequal(gridC,gridI))
+                            gridFound = true;
+                            numIterGridsFound(gc) = numIterGridsFound(gc)+1;
+                            if( (vC<0)~=(vI<0) )
+                                disp('v differ in signs!')
+                                gridC
+                                vC
+                                gridI
+                                vI
+                            end
+                            uCSums(gc) = uCSums(gc)+uI;
+                            vCSums(gc) = vCSums(gc)+vI;
+                            generationCSums(gc) = generationCSums(gc) + generationI;
+                            %commonTopGrids(3,3,ctgi) = gridC;
+                            %commonTopGrids(4,1,ctgi) = uC;
+                            %commonTopGrids(4,2,ctgi) = vC;
+                            %commonTopGrids(4,3,ctgi) = generationJ;
+                            ctgi = ctgi+1;
+                            break %stop looking for match in this iteration
+                        end
+                    end
+                end
+            end
+            
+            uCs = uCSums./numIterGridsFound;
+            vCs = vCSums./numIterGridsFound;
+            generationCs = generationCSums./numIterGridsFound;
+            topGridsCommonToAll = topGridsC(numIterGridsFound==length(results))
+            
+  
+            tgi = int8(topGridsC(1:3,1:3,:));
             tgp = repmat('b',[3,3,showNGrids]);
             tgp(logical(tgi==3)) = '-';
             tgp(logical(tgi==2)) = 'O';
             tgp(logical(tgi==1)) = 'X';
             tgp(logical(tgi==0)) = ' ';
             
+            col_w = 3;
+            fr_n = 0;
+            [sortedGrids, sortedIndices] = sort(numIterGridsFound, 'ascend');
             for i=1:showNGrids
-               disp(tgp(:,:,i))
-               u = tg(4,1,i)
-               v = tg(4,2,i)
-               generation = tg(4,3,i)
-               
+               si = sortedIndices(i);
+               if(numIterGridsFound(si)>1)
+                   hdr_line = repmat([char('-' * ones(1, col_w+1))], 1, size(tgp, 2));
+                   %hdr_line = rempat('-'    x11)
+                   %data_fmt = [repmat([' %', int2str(col_w - 1), 'c '], 1, size(tgp, 2)), '\n'];
+                   data_fmt = ['%',int2str(col_w-1),'c |','%',int2str(col_w-1),'c |', '%',int2str(col_w-1),'c ','\n'];
+                   %fprintf('%s\n', hdr_line)
+                   fprintf(data_fmt, tgp(1,:,i))
+                   fprintf('%s\n', hdr_line(1:end-1))
+                   fprintf(data_fmt, tgp(2,:,i))
+                   fprintf('%s\n', hdr_line(1:end-1))
+                   fprintf(data_fmt, tgp(2,:,i))
+                   
+                   %disp(tgp(:,:,si))
+                   numIterGridFound =numIterGridsFound(si)
+                   uC = uCs(si)
+                   vC = vCs(si)
+                   generationC = generationCs(si)
+               end
             end
+            
+            %disp(strcat('num intersecting grids = ', ctgi))
+            
+            
             
         end
         
-        function plotUVOverTime(model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize)
+        function plotUVOverTime(resultsArgumentName, model, blocks, uOverTimeBySize, vOverTimeBySize, sizeCountsOverTime, generationOverTimeBySize)
             figure
             clf,hold on;
             plot(1:blocks, squeeze(uOverTimeBySize(model, :, 1:blocks)));
-            title(strcat('u Over Time By Size.','Model= ',int2str(model), 'Blocks=', int2str(blocks)));
+            title(strcat(resultsArgumentName, 'u Over Time By Size.','Model= ',int2str(model), 'Blocks=', int2str(blocks)));
             legend('1','2','3','4','5','6','7','8','9')
             drawnow;
 
             figure
             clf,hold on;
             plot(1:blocks, squeeze(vOverTimeBySize(model, :, 1:blocks)));
-            title(strcat('v Over Time By Size.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
+            title(strcat(resultsArgumentName, 'v Over Time By Size.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
             legend('1','2','3','4','5','6','7','8','9')
             drawnow;
             
             figure
             clf,hold on;
             plot(1:blocks, squeeze(sizeCountsOverTime(model, :, 1:blocks)));
-            title(strcat('Size Counts Over Time.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
+            title(strcat(resultsArgumentName, 'Size Counts Over Time.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
             legend('1','2','3','4','5','6','7','8','9')
             drawnow;
         end
         
         
-        function plotExemplarTracking(model, exemplarTracking, blocks)
+        function plotExemplarTracking(resultsArgumentName, model, exemplarTracking, blocks)
             
             
             %plot exemplar tracking U Avg
@@ -647,7 +747,7 @@ classdef Game < handle
             clf,hold on;
             plot(mean(reshape(exemplarTracking(5, 1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(6, 1:blocks, model),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking U Avg.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
+            title(strcat(resultsArgumentName, 'Exemplar Tracking U Avg.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
             %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -659,7 +759,7 @@ classdef Game < handle
             plot(mean(reshape(exemplarTracking(1,1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(2,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking U Sum.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
+            title(strcat(resultsArgumentName, 'Exemplar Tracking U Sum.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
             %, num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -671,7 +771,7 @@ classdef Game < handle
             plot(mean(reshape(exemplarTracking(7,1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(8,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking V Avg.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
+            title(strcat(resultsArgumentName, 'Exemplar Tracking V Avg.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
             %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -683,7 +783,7 @@ classdef Game < handle
             plot(mean(reshape(exemplarTracking(3,1:blocks, model),10,blocks/10)), 'r--');
             plot(mean(reshape(exemplarTracking(4,1:blocks, model),10,blocks/10)), 'b-');
             %plot(mean(reshape(agent.exemplarTracking(7,1:blocks),10,blocks/10)), 'b-');
-            title(strcat('Exemplar Tracking V Sum.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
+            title(strcat(resultsArgumentName, 'Exemplar Tracking V Sum.','Model= ',int2str(model), ' Blocks=', int2str(blocks)));
             %. nExemplars =', num2str(agent.nExemplars), '. nSchemas =', num2str(agent.nSchemas(blocks)), '. SchemaThreshold =', num2str(agent.schemaInductionThreshold), '. LearningRates =', num2str(agent.alpha_v), ',', num2str(agent.alpha_u)));
             %title('points');
             drawnow;
@@ -691,7 +791,7 @@ classdef Game < handle
         end
         
         
-        function plotPoints5P(points, blocks)
+        function plotPoints5P(resultsArgumentName, points, blocks)
 %             figure;
 %             clf, hold on;
 %             blocksToPlot = blocks-mod(blocks,100);
@@ -738,7 +838,7 @@ classdef Game < handle
           
         end
         
-        function compareModels(avgResults, m1, m2)
+        function compareModels(resultsArgumentName, avgResults, m1, m2)
             %m1 = 3
             %m2 = 4
             numVars = length(avgResults);
@@ -754,6 +854,7 @@ classdef Game < handle
             clf, hold on
             plot(1:blocks,nSchemas(m1,:), 'r')
             plot(1:blocks,nSchemas(m2,:), 'b')
+            title(strcat(resultsArgumentName, ' compare schemas induced for ', m1, ' vs. ', m2))
         end
         
         function plotPoints3P(p1, p2, p3)
