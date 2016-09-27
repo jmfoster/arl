@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH --nodes 1
-#SBATCH --ntasks 40
-#SBATCH --output arl24.out
+#SBATCH --ntasks 32
+#SBATCH --output arl25.out
 #SBATCH --qos himem
 
 module load matlab
