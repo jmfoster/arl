@@ -98,6 +98,7 @@ classdef Agent < handle
         vOverTimeBySize;
         sizeCountsOverTime;
         generationOverTimeBySize;
+        block;
         
     end
     
@@ -453,7 +454,7 @@ classdef Agent < handle
                 if(ag.schemaInductionThreshold == -1) %yoke schema induction; might have to move this outside of ~isempty(ag.E) outer loop
                     %turn = length(ag.nSchemasByTurn)+1; %ag.nSchemasByTurn is used here to get # turns taken so far
                     turn = ag.turn;
-                    block = length(ag.numExemplars)+1;
+                    block = ag.block;
                     %nRecruits = int32(ag.nSchemasYoked(block)/(10*5*2)); %number of schemas that should be recruited on this turn. divide # schemas induced in the block by 10 games by avg 5turns/game by 2 players
                     %if(ag.dbug && recruitSize>0)    %dbug
                     %    nRecruits
@@ -466,7 +467,10 @@ classdef Agent < handle
                     %endPosition = sum(ag.nSchemasYoked(1:turn)); 
                     %startPosition = endPosition-nRecruits+1; 
                     %nSizes = ag.nSchemasYokedSizes(startPosition:endPosition);
-                    probSizes = ag.nSchemasYokedSizes{block}/(10*4); %10 games per block, 4.5 turns/block, 2 players?
+                    probSizes = ag.nSchemasYokedSizes{block}/(10*4.5*2); %10 games per block, 4.5 turns/block, 2 players?
+                    %probSizes = ag.nSchemasYokedSizes{block}/(10*4); %10 games per block, 4.5 turns/block, 2 players?
+                    %probSizes = ag.nSchemasYokedSizes{block}; %10 games per block, 4.5 turns/block, 2 players?
+                    probSizes(9) = 0; %set size 9 (real exemplar, not a schema) probability to 0
                     nSizes = find(rand(1,9)<probSizes);
                     if(isempty(nSizes))
                          exemplarIDs = logical(zeros(1,length(ag.Eact))); %don't induce/recruit any schemas

@@ -345,6 +345,8 @@ classdef Game < handle
                 
                 %train
                 for m = 1:length(agentsA) %for each model
+                    agentsA{m}.block = i; %lets agent know which block it's in, used for yoked schema induction
+                    agentsB{m}.block = i;
                     games{m}.train(agentsA{m}, agentsB{m}, trainingRounds);
                 end
                 
@@ -839,8 +841,8 @@ classdef Game < handle
         end
         
         function compareModels(resultsArgumentName, avgResults, m1, m2)
-            %m1 = 3
-            %m2 = 4
+            m1 = 3
+            m2 = 4
             numVars = length(avgResults);
             if(numVars==9)
                 [props diffs points nSchemas exemplarTracking uOverTimeBySize vOverTimeBySize sizeCountsOverTime generationOverTimeBySize] = avgResults{1:numVars};
@@ -854,7 +856,8 @@ classdef Game < handle
             clf, hold on
             plot(1:blocks,nSchemas(m1,:), 'r')
             plot(1:blocks,nSchemas(m2,:), 'b')
-            title(strcat(resultsArgumentName, ' compare schemas induced for ', m1, ' vs. ', m2))
+            title(strcat(resultsArgumentName, ' compare schemas induced for ', int2str(m1), ' vs. ', int2str(m2)))
+            
         end
         
         function plotPoints3P(p1, p2, p3)
