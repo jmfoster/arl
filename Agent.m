@@ -467,7 +467,7 @@ classdef Agent < handle
                     %endPosition = sum(ag.nSchemasYoked(1:turn)); 
                     %startPosition = endPosition-nRecruits+1; 
                     %nSizes = ag.nSchemasYokedSizes(startPosition:endPosition);
-                    probSizes = ag.nSchemasYokedSizes{block}/(10*4.5*2); %10 games per block, 4.5 turns/block, 2 players?
+                    probSizes = 1.25*ag.nSchemasYokedSizes{block}/(10*4.5*2); %10 games per block, 4.5 turns/block, 2 players?
                     %probSizes = ag.nSchemasYokedSizes{block}/(10*4); %10 games per block, 4.5 turns/block, 2 players?
                     %probSizes = ag.nSchemasYokedSizes{block}; %10 games per block, 4.5 turns/block, 2 players?
                     probSizes(9) = 0; %set size 9 (real exemplar, not a schema) probability to 0
