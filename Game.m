@@ -246,7 +246,7 @@ classdef Game < handle
                 %create unguided schema inducion players (without u learning)
                 yoked = 1;
                 if(yoked==1)
-                    loadedYoked = load('r22yoked5000.mat');
+                    loadedYoked = load('r28yoked5000.mat');
                     sizesYoked = loadedYoked.sizesYoked;
                     p5 = Agent(g5.d, 2, recruitment, 1, 0);
                     p6 = Agent(g5.d, 2, recruitment, 1, 0);
