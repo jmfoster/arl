@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --nodes 1
-#SBATCH --ntasks 32
+#SBATCH --ntasks 40
 #SBATCH --output arl30.out
 #SBATCH --qos himem
 
